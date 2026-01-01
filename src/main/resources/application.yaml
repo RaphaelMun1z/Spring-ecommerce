@@ -1,6 +1,7 @@
 spring:
   application:
     name: ecommerce
+    version: v0.1.0-alpha
   profiles:
     active: "test"
   jpa:

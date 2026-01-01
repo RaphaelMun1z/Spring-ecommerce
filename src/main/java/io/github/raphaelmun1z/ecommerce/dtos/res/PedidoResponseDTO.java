@@ -3,21 +3,38 @@ package io.github.raphaelmun1z.ecommerce.dtos.res;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.ItemPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pedido;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Schema(description = "Objeto de resposta com os detalhes completos de um pedido realizado")
 public class PedidoResponseDTO {
 
+    @Schema(description = "Identificador único do pedido", example = "550e8400-e29b-41d4-a716-446655440000")
     private String id;
+
+    @Schema(description = "Data e hora em que o pedido foi realizado")
     private LocalDateTime dataPedido;
+
+    @Schema(description = "Status atual do ciclo de vida do pedido", example = "PAGO")
     private StatusPedido status;
+
+    @Schema(description = "Valor total do pedido (soma dos itens + frete - descontos)", example = "1250.90")
     private BigDecimal valorTotal;
+
+    @Schema(description = "Nome do cliente que realizou o pedido", example = "Ana Clara")
     private String nomeCliente;
+
+    @Schema(description = "E-mail de contato do cliente", example = "ana.c@email.com")
     private String emailCliente;
+
+    @Schema(description = "URL do avatar do cliente (se disponível)", example = "https://ui-avatars.com/api/?name=Ana+C")
     private String avatarCliente;
+
+    @Schema(description = "Lista detalhada dos itens comprados")
     private List<ItemPedidoDTO> itens;
 
     public PedidoResponseDTO(Pedido entity) {
@@ -101,10 +118,19 @@ public class PedidoResponseDTO {
         this.itens = itens;
     }
 
+    @Schema(description = "Detalhes resumidos de um item (produto) dentro do pedido")
     public static class ItemPedidoDTO {
+
+        @Schema(description = "Nome/Título do produto comprado", example = "Furadeira Bosch")
         private String produtoNome;
+
+        @Schema(description = "Quantidade adquirida", example = "1")
         private Integer quantidade;
+
+        @Schema(description = "Preço unitário no momento da compra (snapshot)", example = "450.00")
         private BigDecimal precoUnitario;
+
+        @Schema(description = "Subtotal do item (quantidade * preço unitário)", example = "450.00")
         private BigDecimal subTotal;
 
         public ItemPedidoDTO(ItemPedido item) {

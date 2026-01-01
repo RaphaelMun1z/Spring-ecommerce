@@ -1,6 +1,7 @@
 package io.github.raphaelmun1z.ecommerce.entities.usuario;
 
 import io.github.raphaelmun1z.ecommerce.entities.autorizacao.Papel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -26,40 +27,56 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "tb_usuario", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
+@Schema(description = "Entidade abstrata base para usuários do sistema (Clientes e Administradores)")
 public abstract class Usuario implements UserDetails, Serializable {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Schema(description = "Identificador único do usuário", example = "550e8400-e29b-41d4-a716-446655440000")
     private String id;
 
     @NotBlank(message = "O nome não pode ser vazio ou nulo.")
     @Column(nullable = false)
+    @Schema(description = "Nome completo do usuário", example = "João da Silva")
     private String nome;
 
     @NotBlank(message = "O e-mail não pode ser vazio ou nulo.")
     @Email(message = "O formato do e-mail é inválido.")
     @Column(nullable = false, unique = true)
+    @Schema(description = "Endereço de e-mail para login e contato", example = "joao@email.com")
     private String email;
 
     @NotBlank(message = "A senha não pode ser vazia ou nula.")
     @Column(nullable = false)
+    @Schema(description = "Senha criptografada do usuário", hidden = true)
     private String senha;
 
+    @Schema(hidden = true)
     private String passwordResetToken;
+
+    @Schema(hidden = true)
     private LocalDateTime passwordResetTokenExpiry;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
+    @Schema(description = "Data e hora do cadastro do usuário")
     private LocalDateTime dataCadastro;
 
     @NotNull(message = "O papel do usuário não pode ser nulo.")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "papel_id", nullable = false)
+    @Schema(description = "Papel (Role) de acesso atribuído ao usuário")
     private Papel papel;
 
+    @Schema(description = "Indica se a conta do usuário não expirou")
     private boolean accountNonExpired = true;
+
+    @Schema(description = "Indica se a conta do usuário não está bloqueada")
     private boolean accountNonLocked = true;
+
+    @Schema(description = "Indica se as credenciais do usuário não expiraram")
     private boolean credentialsNonExpired = true;
+
+    @Schema(description = "Indica se o usuário está ativo")
     private boolean enabled = true;
 
     public Usuario(String nome, String email, String senha, Papel papel) {

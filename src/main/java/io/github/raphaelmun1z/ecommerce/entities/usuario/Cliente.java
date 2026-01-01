@@ -1,6 +1,7 @@
 package io.github.raphaelmun1z.ecommerce.entities.usuario;
 
 import io.github.raphaelmun1z.ecommerce.entities.autorizacao.Papel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
@@ -17,6 +18,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(name = "tb_cliente")
 @PrimaryKeyJoinColumn(name = "usuario_id")
+@Schema(description = "Entidade que representa um cliente da loja, com dados pessoais e histórico de compras")
 public class Cliente extends Usuario implements Serializable {
 
     public Cliente(String nome, String email, String senha, Papel papel) {
