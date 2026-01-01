@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.analitico;
 
+import io.github.raphaelmun1z.ecommerce.controllers.analitico.docs.NotificacaoControllerDocs;
 import io.github.raphaelmun1z.ecommerce.entities.Notificacao;
 import io.github.raphaelmun1z.ecommerce.services.analitico.NotificacaoService;
 import org.springframework.data.domain.Page;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/notificacoes")
-public class NotificacaoController {
+public class NotificacaoController implements NotificacaoControllerDocs {
     private final NotificacaoService service;
 
     public NotificacaoController(NotificacaoService service) {

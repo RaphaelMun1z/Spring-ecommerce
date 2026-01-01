@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes;
 
+import io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs.CarrinhoControllerDocs;
 import io.github.raphaelmun1z.ecommerce.entities.carrinho.Carrinho;
 import io.github.raphaelmun1z.ecommerce.services.operacoes.CarrinhoService;
 import org.springframework.http.ResponseEntity;
@@ -7,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/carrinho")
-public class CarrinhoController {
+public class CarrinhoController implements CarrinhoControllerDocs {
     private final CarrinhoService service;
 
     public CarrinhoController(CarrinhoService service) {

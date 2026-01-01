@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.analitico;
 
+import io.github.raphaelmun1z.ecommerce.controllers.analitico.docs.RelatorioControllerDocs;
 import io.github.raphaelmun1z.ecommerce.services.analitico.RelatorioService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +17,7 @@ import java.time.LocalTime;
 
 @RestController
 @RequestMapping("/relatorios")
-public class RelatorioController {
+public class RelatorioController implements RelatorioControllerDocs {
 
     private final RelatorioService service;
 
