@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.catalogo;
 
+import io.github.raphaelmun1z.ecommerce.controllers.catalogo.docs.ProdutoControllerDocs;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
 import io.github.raphaelmun1z.ecommerce.services.catalogo.ProdutoService;
 import jakarta.validation.Valid;
@@ -13,7 +14,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/produtos")
-public class ProdutoController {
+public class ProdutoController implements ProdutoControllerDocs {
 
     private final ProdutoService service;
 

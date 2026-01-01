@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes;
 
+import io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs.PedidoControllerDocs;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pedido;
 import io.github.raphaelmun1z.ecommerce.services.operacoes.PedidoService;
@@ -13,7 +14,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/pedidos")
-public class PedidoController {
+public class PedidoController implements PedidoControllerDocs {
 
     private final PedidoService service;
 

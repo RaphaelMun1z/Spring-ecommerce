@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.catalogo;
 
+import io.github.raphaelmun1z.ecommerce.controllers.catalogo.docs.EstoqueControllerDocs;
 import io.github.raphaelmun1z.ecommerce.entities.estoque.MovimentacaoEstoque;
 import io.github.raphaelmun1z.ecommerce.services.catalogo.EstoqueService;
 import jakarta.validation.Valid;
@@ -13,7 +14,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/estoque")
-public class EstoqueController {
+public class EstoqueController implements EstoqueControllerDocs {
 
     private final EstoqueService service;
 

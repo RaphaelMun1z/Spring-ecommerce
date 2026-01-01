@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes;
 
+import io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs.EntregaControllerDocs;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusEntrega;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Entrega;
 import io.github.raphaelmun1z.ecommerce.services.operacoes.EntregaService;
@@ -12,7 +13,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/entregas")
-public class EntregaController {
+public class EntregaController implements EntregaControllerDocs {
 
     private final EntregaService service;
 

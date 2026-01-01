@@ -5,6 +5,7 @@ import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Entrega;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pedido;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.EntregaRepository;
+import io.github.raphaelmun1z.ecommerce.repositories.operacoes.PedidoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

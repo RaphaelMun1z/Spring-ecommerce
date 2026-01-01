@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes;
 
+import io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs.PagamentoControllerDocs;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPagamento;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pagamento;
 import io.github.raphaelmun1z.ecommerce.services.operacoes.PagamentoService;
@@ -12,7 +13,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/pagamentos")
-public class PagamentoController {
+public class PagamentoController implements PagamentoControllerDocs {
 
     private final PagamentoService service;
 
