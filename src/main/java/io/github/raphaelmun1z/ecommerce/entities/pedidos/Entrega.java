@@ -1,0 +1,234 @@
+package io.github.raphaelmun1z.ecommerce.entities.pedidos;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.github.raphaelmun1z.ecommerce.entities.enums.StatusEntrega;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "tb_entrega", indexes = {
+    @Index(name = "idx_entrega_codigo_rastreio", columnList = "codigo_rastreio")
+})
+public class Entrega {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "pedido_id", nullable = false, unique = true)
+    @JsonIgnore
+    private Pedido pedido;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private StatusEntrega status = StatusEntrega.PENDENTE;
+
+    @Column(name = "codigo_rastreio", length = 50)
+    private String codigoRastreio;
+
+    @Column(length = 100)
+    private String transportadora;
+
+    @NotNull
+    @Column(name = "valor_frete", nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorFrete;
+
+    @Column(name = "prazo_dias_uteis")
+    private Integer prazoDiasUteis;
+
+    @Column(name = "data_estimada_entrega")
+    private LocalDateTime dataEstimadaEntrega;
+
+    @Column(name = "data_envio")
+    private LocalDateTime dataEnvio;
+
+    @Column(name = "data_entrega_real")
+    private LocalDateTime dataEntregaReal;
+
+    @NotNull
+    @Size(max = 9)
+    @Column(nullable = false, length = 9)
+    private String cep;
+
+    @NotNull
+    @Column(nullable = false)
+    private String logradouro;
+
+    @NotNull
+    @Column(nullable = false, length = 20)
+    private String numero;
+
+    private String complemento;
+
+    @NotNull
+    @Column(nullable = false)
+    private String bairro;
+
+    @NotNull
+    @Column(nullable = false)
+    private String cidade;
+
+    @NotNull
+    @Size(min = 2, max = 2)
+    @Column(nullable = false, length = 2)
+    private String uf;
+
+    public Entrega() {
+    }
+
+    public Entrega(Pedido pedido, StatusEntrega status, String codigoRastreio, String transportadora, BigDecimal valorFrete, Integer prazoDiasUteis, LocalDateTime dataEstimadaEntrega, LocalDateTime dataEnvio, LocalDateTime dataEntregaReal, String cep, String logradouro, String numero, String complemento, String bairro, String cidade, String uf) {
+        this.pedido = pedido;
+        this.status = status;
+        this.codigoRastreio = codigoRastreio;
+        this.transportadora = transportadora;
+        this.valorFrete = valorFrete;
+        this.prazoDiasUteis = prazoDiasUteis;
+        this.dataEstimadaEntrega = dataEstimadaEntrega;
+        this.dataEnvio = dataEnvio;
+        this.dataEntregaReal = dataEntregaReal;
+        this.cep = cep;
+        this.logradouro = logradouro;
+        this.numero = numero;
+        this.complemento = complemento;
+        this.bairro = bairro;
+        this.cidade = cidade;
+        this.uf = uf;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public Pedido getPedido() {
+        return pedido;
+    }
+
+    public void setPedido(Pedido pedido) {
+        this.pedido = pedido;
+    }
+
+    public StatusEntrega getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusEntrega status) {
+        this.status = status;
+    }
+
+    public String getCodigoRastreio() {
+        return codigoRastreio;
+    }
+
+    public void setCodigoRastreio(String codigoRastreio) {
+        this.codigoRastreio = codigoRastreio;
+    }
+
+    public String getTransportadora() {
+        return transportadora;
+    }
+
+    public void setTransportadora(String transportadora) {
+        this.transportadora = transportadora;
+    }
+
+    public BigDecimal getValorFrete() {
+        return valorFrete;
+    }
+
+    public void setValorFrete(BigDecimal valorFrete) {
+        this.valorFrete = valorFrete;
+    }
+
+    public Integer getPrazoDiasUteis() {
+        return prazoDiasUteis;
+    }
+
+    public void setPrazoDiasUteis(Integer prazoDiasUteis) {
+        this.prazoDiasUteis = prazoDiasUteis;
+    }
+
+    public LocalDateTime getDataEstimadaEntrega() {
+        return dataEstimadaEntrega;
+    }
+
+    public void setDataEstimadaEntrega(LocalDateTime dataEstimadaEntrega) {
+        this.dataEstimadaEntrega = dataEstimadaEntrega;
+    }
+
+    public LocalDateTime getDataEnvio() {
+        return dataEnvio;
+    }
+
+    public void setDataEnvio(LocalDateTime dataEnvio) {
+        this.dataEnvio = dataEnvio;
+    }
+
+    public LocalDateTime getDataEntregaReal() {
+        return dataEntregaReal;
+    }
+
+    public void setDataEntregaReal(LocalDateTime dataEntregaReal) {
+        this.dataEntregaReal = dataEntregaReal;
+    }
+
+    public String getCep() {
+        return cep;
+    }
+
+    public void setCep(String cep) {
+        this.cep = cep;
+    }
+
+    public String getLogradouro() {
+        return logradouro;
+    }
+
+    public void setLogradouro(String logradouro) {
+        this.logradouro = logradouro;
+    }
+
+    public String getNumero() {
+        return numero;
+    }
+
+    public void setNumero(String numero) {
+        this.numero = numero;
+    }
+
+    public String getComplemento() {
+        return complemento;
+    }
+
+    public void setComplemento(String complemento) {
+        this.complemento = complemento;
+    }
+
+    public String getBairro() {
+        return bairro;
+    }
+
+    public void setBairro(String bairro) {
+        this.bairro = bairro;
+    }
+
+    public String getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
+    }
+
+    public String getUf() {
+        return uf;
+    }
+
+    public void setUf(String uf) {
+        this.uf = uf;
+    }
+}

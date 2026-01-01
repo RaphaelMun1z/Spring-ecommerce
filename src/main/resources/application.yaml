@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: ecommerce
+  profiles:
+    active: "test"
+  jpa:
+    open-in-view: false
+
+security:
+  password:
+    encoder:
+      secret: "DQvnCBpT2X1o797Mqez9xNtD9kPPxulf"
+      iterations: 185000
+      salt-length: 16
+  jwt:
+    token:
+      secret-key: "fjilmpmaKTk4ZpLrsP2ecqFfZpqzP1bY"
+      expire-length: 3600000
+  spring-doc:
+    paths-to-match: /api/**
+    swagger-ui:
+      use-root-path: true
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
