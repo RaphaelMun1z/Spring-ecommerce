@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.catalogo.docs;
 
+import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.ProdutoFiltroDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.ProdutoRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.ProdutoResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +19,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "Catálogo de Produtos", description = "Endpoints para gerenciamento de produtos, inventário e vitrine")
 public interface ProdutoControllerDocs {
+
+    @Operation(summary = "Busca Avançada (Filtros)", description = "Permite filtrar produtos por termo, categoria e faixa de preço. Suporta paginação.")
+    @ApiResponse(responseCode = "200", description = "Lista filtrada retornada com sucesso")
+    ResponseEntity<Page<ProdutoResponseDTO>> buscarComFiltros(
+        @Parameter(description = "Parâmetros de filtro") ProdutoFiltroDTO filtro,
+        @Parameter(hidden = true) Pageable pageable
+    );
 
     @Operation(summary = "Listar produtos (Administrativo)", description = "Retorna uma lista paginada de todos os produtos.")
     @ApiResponse(responseCode = "200", description = "Lista recuperada com sucesso")

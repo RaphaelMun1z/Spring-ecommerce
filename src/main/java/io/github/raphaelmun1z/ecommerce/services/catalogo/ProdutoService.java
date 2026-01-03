@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.services.catalogo;
 
+import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.ProdutoFiltroDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.ProdutoRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.ProdutoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Categoria;
@@ -7,6 +8,7 @@ import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
 import io.github.raphaelmun1z.ecommerce.exceptions.models.NotFoundException;
 import io.github.raphaelmun1z.ecommerce.repositories.catalogo.CategoriaRepository;
 import io.github.raphaelmun1z.ecommerce.repositories.catalogo.ProdutoRepository;
+import io.github.raphaelmun1z.ecommerce.repositories.specs.ProdutoSpecs;
 import org.springframework.data.domain.Pageable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,12 @@ public class ProdutoService {
     public ProdutoService(ProdutoRepository repository, CategoriaRepository categoriaRepository) {
         this.repository = repository;
         this.categoriaRepository = categoriaRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProdutoResponseDTO> filtrar(ProdutoFiltroDTO filtro, Pageable pageable) {
+        return repository.findAll(ProdutoSpecs.comFiltros(filtro), pageable)
+            .map(ProdutoResponseDTO::new);
     }
 
     @Transactional(readOnly = true)

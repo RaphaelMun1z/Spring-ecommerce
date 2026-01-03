@@ -1,6 +1,7 @@
 package io.github.raphaelmun1z.ecommerce.controllers.catalogo;
 
 import io.github.raphaelmun1z.ecommerce.controllers.catalogo.docs.ProdutoControllerDocs;
+import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.ProdutoFiltroDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.ProdutoRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.ProdutoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.services.catalogo.ProdutoService;
@@ -21,6 +22,13 @@ public class ProdutoController implements ProdutoControllerDocs {
 
     public ProdutoController(ProdutoService service) {
         this.service = service;
+    }
+
+    @Override
+    @GetMapping("/buscar")
+    public ResponseEntity<Page<ProdutoResponseDTO>> buscarComFiltros(ProdutoFiltroDTO filtro, Pageable pageable) {
+        Page<ProdutoResponseDTO> list = service.filtrar(filtro, pageable);
+        return ResponseEntity.ok().body(list);
     }
 
     @Override
