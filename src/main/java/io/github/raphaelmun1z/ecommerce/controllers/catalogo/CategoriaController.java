@@ -1,6 +1,7 @@
 package io.github.raphaelmun1z.ecommerce.controllers.catalogo;
 
 import io.github.raphaelmun1z.ecommerce.controllers.catalogo.docs.CategoriaControllerDocs;
+import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.CategoriaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Categoria;
 import io.github.raphaelmun1z.ecommerce.services.catalogo.CategoriaService;
 import jakarta.validation.Valid;
@@ -21,50 +22,58 @@ public class CategoriaController implements CategoriaControllerDocs {
         this.service = service;
     }
 
+    @Override
     @GetMapping
-    public ResponseEntity<Page<Categoria>> findAll(Pageable pageable) {
-        Page<Categoria> list = service.findAll(pageable);
+    public ResponseEntity<Page<CategoriaResponseDTO>> listarTodas(Pageable pageable) {
+        Page<CategoriaResponseDTO> list = service.findAll(pageable);
         return ResponseEntity.ok().body(list);
     }
 
+    @Override
     @GetMapping("/ativas")
-    public ResponseEntity<Page<Categoria>> findAllActive(Pageable pageable) {
-        Page<Categoria> list = service.findAllActive(pageable);
+    public ResponseEntity<Page<CategoriaResponseDTO>> listarAtivas(Pageable pageable) {
+        Page<CategoriaResponseDTO> list = service.findAllActive(pageable);
         return ResponseEntity.ok().body(list);
     }
 
+    @Override
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Categoria> findById(@PathVariable String id) {
-        Categoria obj = service.findById(id);
+    public ResponseEntity<CategoriaResponseDTO> buscarPorId(@PathVariable String id) {
+        CategoriaResponseDTO obj = service.findById(id);
         return ResponseEntity.ok().body(obj);
     }
 
+    @Override
     @PostMapping
-    public ResponseEntity<Categoria> insert(@Valid @RequestBody Categoria obj) {
-        obj = service.insert(obj);
+    public ResponseEntity<CategoriaResponseDTO> criar(@Valid @RequestBody Categoria obj) {
+        CategoriaResponseDTO newObj = service.insert(obj);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-            .buildAndExpand(obj.getId()).toUri();
-        return ResponseEntity.created(uri).body(obj);
+            .buildAndExpand(newObj.getId()).toUri();
+        return ResponseEntity.created(uri).body(newObj);
     }
 
+    @Override
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Categoria> update(@PathVariable String id, @Valid @RequestBody Categoria obj) {
-        obj = service.update(id, obj);
-        return ResponseEntity.ok().body(obj);
+    public ResponseEntity<CategoriaResponseDTO> atualizar(@PathVariable String id, @Valid @RequestBody Categoria obj) {
+        CategoriaResponseDTO newObj = service.update(id, obj);
+        return ResponseEntity.ok().body(newObj);
     }
 
+    @Override
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
+    public ResponseEntity<Void> excluir(@PathVariable String id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @PatchMapping(value = "/{id}/desativar")
     public ResponseEntity<Void> desativar(@PathVariable String id) {
         service.desativar(id);
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @PatchMapping(value = "/{id}/ativar")
     public ResponseEntity<Void> ativar(@PathVariable String id) {
         service.ativar(id);

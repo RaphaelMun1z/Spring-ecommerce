@@ -1,6 +1,7 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes;
 
 import io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs.EntregaControllerDocs;
+import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.EntregaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusEntrega;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Entrega;
 import io.github.raphaelmun1z.ecommerce.services.operacoes.EntregaService;
@@ -21,45 +22,51 @@ public class EntregaController implements EntregaControllerDocs {
         this.service = service;
     }
 
+    @Override
     @GetMapping("/{id}")
-    public ResponseEntity<Entrega> findById(@PathVariable String id) {
-        Entrega obj = service.buscarPorId(id);
+    public ResponseEntity<EntregaResponseDTO> buscarPorId(@PathVariable String id) {
+        EntregaResponseDTO obj = service.buscarPorId(id);
         return ResponseEntity.ok(obj);
     }
 
+    @Override
     @GetMapping("/pedido/{pedidoId}")
-    public ResponseEntity<Entrega> findByPedido(@PathVariable String pedidoId) {
-        Entrega obj = service.buscarPorPedido(pedidoId);
+    public ResponseEntity<EntregaResponseDTO> buscarPorPedido(@PathVariable String pedidoId) {
+        EntregaResponseDTO obj = service.buscarPorPedido(pedidoId);
         return ResponseEntity.ok(obj);
     }
 
+    @Override
     @PostMapping("/pedido/{pedidoId}")
-    public ResponseEntity<Entrega> create(@PathVariable String pedidoId, @Valid @RequestBody Entrega entrega) {
-        Entrega newObj = service.criarEntrega(entrega, pedidoId);
+    public ResponseEntity<EntregaResponseDTO> criarEntrega(@PathVariable String pedidoId, @Valid @RequestBody Entrega entrega) {
+        EntregaResponseDTO newObj = service.criarEntrega(entrega, pedidoId);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
             .buildAndExpand(newObj.getId()).toUri();
         return ResponseEntity.created(uri).body(newObj);
     }
 
+    @Override
     @PatchMapping("/{id}/rastreio")
-    public ResponseEntity<Entrega> updateTracking(
+    public ResponseEntity<EntregaResponseDTO> atualizarRastreio(
         @PathVariable String id,
         @RequestParam String codigo,
         @RequestParam(required = false) String transportadora) {
 
-        Entrega obj = service.atualizarRastreio(id, codigo, transportadora);
+        EntregaResponseDTO obj = service.atualizarRastreio(id, codigo, transportadora);
         return ResponseEntity.ok(obj);
     }
 
+    @Override
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Entrega> updateStatus(@PathVariable String id, @RequestParam StatusEntrega status) {
-        Entrega obj = service.atualizarStatus(id, status);
+    public ResponseEntity<EntregaResponseDTO> atualizarStatus(@PathVariable String id, @RequestParam StatusEntrega status) {
+        EntregaResponseDTO obj = service.atualizarStatus(id, status);
         return ResponseEntity.ok(obj);
     }
 
+    @Override
     @PatchMapping("/{id}/confirmar")
-    public ResponseEntity<Entrega> confirmDelivery(@PathVariable String id) {
-        Entrega obj = service.confirmarEntrega(id);
+    public ResponseEntity<EntregaResponseDTO> confirmarEntrega(@PathVariable String id) {
+        EntregaResponseDTO obj = service.confirmarEntrega(id);
         return ResponseEntity.ok(obj);
     }
 }

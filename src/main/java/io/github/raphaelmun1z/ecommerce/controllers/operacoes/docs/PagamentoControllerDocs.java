@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs;
 
+import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.PagamentoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPagamento;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pagamento;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,31 +21,31 @@ public interface PagamentoControllerDocs {
 
     @Operation(summary = "Buscar pagamento por ID", description = "Recupera os detalhes de um pagamento específico. O ID é o mesmo do Pedido associado.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pagamento encontrado", content = @Content(schema = @Schema(implementation = Pagamento.class))),
+        @ApiResponse(responseCode = "200", description = "Pagamento encontrado", content = @Content(schema = @Schema(implementation = PagamentoResponseDTO.class))),
         @ApiResponse(responseCode = "404", description = "Pagamento não encontrado", content = @Content)
     })
-    ResponseEntity<Pagamento> findById(
+    ResponseEntity<PagamentoResponseDTO> buscarPorId(
         @Parameter(description = "ID do pagamento (mesmo ID do pedido)") @PathVariable String id
     );
 
     @Operation(summary = "Registrar pagamento", description = "Cria um registro de pagamento para um pedido aguardando pagamento.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Pagamento registrado com sucesso"),
+        @ApiResponse(responseCode = "201", description = "Pagamento registrado com sucesso", content = @Content(schema = @Schema(implementation = PagamentoResponseDTO.class))),
         @ApiResponse(responseCode = "400", description = "Erro de validação (valor incorreto, pedido já pago, etc.)", content = @Content),
         @ApiResponse(responseCode = "404", description = "Pedido não encontrado", content = @Content)
     })
-    ResponseEntity<Pagamento> create(
+    ResponseEntity<PagamentoResponseDTO> criarPagamento(
         @Parameter(description = "ID do pedido") @PathVariable String pedidoId,
         @RequestBody @Valid Pagamento pagamento
     );
 
     @Operation(summary = "Atualizar status do pagamento", description = "Endpoint para callbacks de gateway ou atualização manual do status financeiro.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Status atualizado com sucesso"),
+        @ApiResponse(responseCode = "200", description = "Status atualizado com sucesso", content = @Content(schema = @Schema(implementation = PagamentoResponseDTO.class))),
         @ApiResponse(responseCode = "400", description = "Transição de status inválida", content = @Content),
         @ApiResponse(responseCode = "404", description = "Pagamento não encontrado", content = @Content)
     })
-    ResponseEntity<Pagamento> updateStatus(
+    ResponseEntity<PagamentoResponseDTO> atualizarStatus(
         @Parameter(description = "ID do pagamento") @PathVariable String id,
         @Parameter(description = "Novo status") @RequestParam StatusPagamento status,
         @Parameter(description = "Código da transação no Gateway (Opcional)") @RequestParam(required = false) String codigoGateway

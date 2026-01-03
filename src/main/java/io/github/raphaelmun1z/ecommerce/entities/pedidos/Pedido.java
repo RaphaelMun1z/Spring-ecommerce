@@ -82,14 +82,6 @@ public class Pedido {
         calculaTotal();
     }
 
-    public void setEntrega(Entrega entrega) {
-        this.entrega = entrega;
-        if (entrega != null) {
-            entrega.setPedido(this);
-        }
-        calculaTotal();
-    }
-
     public void calculaTotal() {
         BigDecimal totalItens = itens.stream()
             .map(ItemPedido::getSubTotal)
@@ -107,6 +99,8 @@ public class Pedido {
             this.valorTotal = BigDecimal.ZERO;
         }
     }
+
+    // --- Getters e Setters ---
 
     public String getId() {
         return id;
@@ -147,6 +141,25 @@ public class Pedido {
 
     public Entrega getEntrega() {
         return entrega;
+    }
+
+    public void setEntrega(Entrega entrega) {
+        this.entrega = entrega;
+        if (entrega != null) {
+            entrega.setPedido(this);
+        }
+        calculaTotal();
+    }
+
+    public Pagamento getPagamento() {
+        return pagamento;
+    }
+
+    public void setPagamento(Pagamento pagamento) {
+        this.pagamento = pagamento;
+        if (pagamento != null) {
+            pagamento.setPedido(this);
+        }
     }
 
     public List<ItemPedido> getItens() {

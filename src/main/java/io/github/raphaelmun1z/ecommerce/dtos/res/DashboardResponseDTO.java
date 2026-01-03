@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.dtos.res;
 
+import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.PedidoResponseDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;

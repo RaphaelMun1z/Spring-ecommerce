@@ -1,9 +1,8 @@
 package io.github.raphaelmun1z.ecommerce.controllers.catalogo;
 
 import io.github.raphaelmun1z.ecommerce.controllers.catalogo.docs.ProdutoControllerDocs;
-import io.github.raphaelmun1z.ecommerce.dtos.req.ProdutoRequestDTO;
-import io.github.raphaelmun1z.ecommerce.dtos.res.ProdutoResponseDTO;
-import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
+import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.ProdutoRequestDTO;
+import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.ProdutoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.services.catalogo.ProdutoService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -24,87 +23,61 @@ public class ProdutoController implements ProdutoControllerDocs {
         this.service = service;
     }
 
+    @Override
     @GetMapping
-    @Override
-    public ResponseEntity<Page<ProdutoResponseDTO>> findAll(Pageable pageable) {
-        Page<Produto> list = service.findAll(pageable);
-        // Converte Page<Produto> para Page<ProdutoResponseDTO>
-        Page<ProdutoResponseDTO> listDto = list.map(this::toDTO);
-        return ResponseEntity.ok().body(listDto);
+    public ResponseEntity<Page<ProdutoResponseDTO>> listarTodos(Pageable pageable) {
+        Page<ProdutoResponseDTO> list = service.listarTodos(pageable);
+        return ResponseEntity.ok().body(list);
     }
 
+    @Override
     @GetMapping("/vitrine")
-    @Override
-    public ResponseEntity<Page<ProdutoResponseDTO>> findAllActive(Pageable pageable) {
-        Page<Produto> list = service.findAllActive(pageable);
-        return ResponseEntity.ok().body(list.map(this::toDTO));
+    public ResponseEntity<Page<ProdutoResponseDTO>> listarAtivos(Pageable pageable) {
+        Page<ProdutoResponseDTO> list = service.listarAtivos(pageable);
+        return ResponseEntity.ok().body(list);
     }
 
+    @Override
     @GetMapping(value = "/{id}")
-    @Override
-    public ResponseEntity<ProdutoResponseDTO> findById(@PathVariable String id) {
-        Produto obj = service.findById(id);
-        return ResponseEntity.ok().body(toDTO(obj));
+    public ResponseEntity<ProdutoResponseDTO> buscarPorId(@PathVariable String id) {
+        ProdutoResponseDTO obj = service.buscarPorId(id);
+        return ResponseEntity.ok().body(obj);
     }
 
+    @Override
     @PostMapping
-    @Override
-    public ResponseEntity<ProdutoResponseDTO> insert(@Valid @RequestBody ProdutoRequestDTO dto) {
-        Produto obj = toEntity(dto);
-        obj = service.insert(obj);
-
+    public ResponseEntity<ProdutoResponseDTO> criar(@Valid @RequestBody ProdutoRequestDTO dto) {
+        ProdutoResponseDTO newObj = service.criar(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-            .buildAndExpand(obj.getId()).toUri();
-
-        return ResponseEntity.created(uri).body(toDTO(obj));
+            .buildAndExpand(newObj.getId()).toUri();
+        return ResponseEntity.created(uri).body(newObj);
     }
 
+    @Override
     @PutMapping(value = "/{id}")
-    @Override
-    public ResponseEntity<ProdutoResponseDTO> update(@PathVariable String id, @Valid @RequestBody ProdutoRequestDTO dto) {
-        Produto obj = toEntity(dto);
-        obj = service.update(id, obj);
-        return ResponseEntity.ok().body(toDTO(obj));
+    public ResponseEntity<ProdutoResponseDTO> atualizar(@PathVariable String id, @Valid @RequestBody ProdutoRequestDTO dto) {
+        ProdutoResponseDTO obj = service.atualizar(id, dto);
+        return ResponseEntity.ok().body(obj);
     }
 
-    @DeleteMapping(value = "/{id}")
     @Override
-    public ResponseEntity<Void> delete(@PathVariable String id) {
-        service.delete(id);
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable String id) {
+        service.excluir(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping(value = "/{id}/desativar")
     @Override
+    @PatchMapping(value = "/{id}/desativar")
     public ResponseEntity<Void> desativar(@PathVariable String id) {
         service.desativar(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping(value = "/{id}/ativar")
     @Override
+    @PatchMapping(value = "/{id}/ativar")
     public ResponseEntity<Void> ativar(@PathVariable String id) {
         service.ativar(id);
         return ResponseEntity.noContent().build();
-    }
-
-    // --- Métodos de Conversão (Mappers manuais) ---
-    private ProdutoResponseDTO toDTO(Produto entity) {
-        return new ProdutoResponseDTO(entity);
-    }
-
-    private Produto toEntity(ProdutoRequestDTO dto) {
-        Produto p = new Produto();
-        p.setCodigoControle(dto.getCodigoControle());
-        p.setTitulo(dto.getTitulo());
-        p.setDescricao(dto.getDescricao());
-        p.setPreco(dto.getPreco());
-        p.setPrecoPromocional(dto.getPrecoPromocional());
-        p.setEstoque(dto.getEstoque());
-        p.setAtivo(dto.getAtivo() != null ? dto.getAtivo() : true);
-        p.setPesoKg(dto.getPesoKg());
-        p.setDimensoes(dto.getDimensoes());
-        // p.setCategoria(...) // Lógica para buscar categoria pelo ID se necessário
-        return p;
     }
 }

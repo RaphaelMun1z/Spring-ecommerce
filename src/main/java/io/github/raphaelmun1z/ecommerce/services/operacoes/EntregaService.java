@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.services.operacoes;
 
+import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.EntregaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusEntrega;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Entrega;
@@ -23,19 +24,20 @@ public class EntregaService {
     }
 
     @Transactional(readOnly = true)
-    public Entrega buscarPorId(String id) {
-        return entregaRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Entrega não encontrada. Id: " + id));
+    public EntregaResponseDTO buscarPorId(String id) {
+        Entrega entrega = buscarEntidadePorId(id);
+        return new EntregaResponseDTO(entrega);
     }
 
     @Transactional(readOnly = true)
-    public Entrega buscarPorPedido(String pedidoId) {
-        return entregaRepository.findByPedidoId(pedidoId)
+    public EntregaResponseDTO buscarPorPedido(String pedidoId) {
+        Entrega entrega = entregaRepository.findByPedidoId(pedidoId)
             .orElseThrow(() -> new EntityNotFoundException("Entrega não encontrada para o pedido: " + pedidoId));
+        return new EntregaResponseDTO(entrega);
     }
 
     @Transactional
-    public Entrega criarEntrega(Entrega entrega, String pedidoId) {
+    public EntregaResponseDTO criarEntrega(Entrega entrega, String pedidoId) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
             .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado. Id: " + pedidoId));
 
@@ -50,12 +52,13 @@ public class EntregaService {
             entrega.setDataEstimadaEntrega(LocalDateTime.now().plusDays(entrega.getPrazoDiasUteis()));
         }
 
-        return entregaRepository.save(entrega);
+        Entrega entregaSalva = entregaRepository.save(entrega);
+        return new EntregaResponseDTO(entregaSalva);
     }
 
     @Transactional
-    public Entrega atualizarRastreio(String entregaId, String codigoRastreio, String transportadora) {
-        Entrega entrega = buscarPorId(entregaId);
+    public EntregaResponseDTO atualizarRastreio(String entregaId, String codigoRastreio, String transportadora) {
+        Entrega entrega = buscarEntidadePorId(entregaId);
 
         if (entrega.getStatus() == StatusEntrega.ENTREGUE || entrega.getStatus() == StatusEntrega.CANCELADO) {
             throw new IllegalStateException("Não é possível alterar rastreio de uma entrega finalizada.");
@@ -71,12 +74,13 @@ public class EntregaService {
             entrega.setDataEnvio(LocalDateTime.now());
         }
 
-        return entregaRepository.save(entrega);
+        Entrega entregaSalva = entregaRepository.save(entrega);
+        return new EntregaResponseDTO(entregaSalva);
     }
 
     @Transactional
-    public Entrega confirmarEntrega(String entregaId) {
-        Entrega entrega = buscarPorId(entregaId);
+    public EntregaResponseDTO confirmarEntrega(String entregaId) {
+        Entrega entrega = buscarEntidadePorId(entregaId);
 
         if (entrega.getStatus() == StatusEntrega.CANCELADO) {
             throw new IllegalStateException("Entrega está cancelada.");
@@ -91,13 +95,21 @@ public class EntregaService {
             pedidoRepository.save(pedido);
         }
 
-        return entregaRepository.save(entrega);
+        Entrega entregaSalva = entregaRepository.save(entrega);
+        return new EntregaResponseDTO(entregaSalva);
     }
 
     @Transactional
-    public Entrega atualizarStatus(String entregaId, StatusEntrega novoStatus) {
-        Entrega entrega = buscarPorId(entregaId);
+    public EntregaResponseDTO atualizarStatus(String entregaId, StatusEntrega novoStatus) {
+        Entrega entrega = buscarEntidadePorId(entregaId);
         entrega.setStatus(novoStatus);
-        return entregaRepository.save(entrega);
+
+        Entrega entregaSalva = entregaRepository.save(entrega);
+        return new EntregaResponseDTO(entregaSalva);
+    }
+
+    private Entrega buscarEntidadePorId(String id) {
+        return entregaRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Entrega não encontrada. Id: " + id));
     }
 }

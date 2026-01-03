@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.services.operacoes;
 
+import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.CarrinhoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.carrinho.Carrinho;
 import io.github.raphaelmun1z.ecommerce.entities.carrinho.ItemCarrinho;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
@@ -28,18 +29,18 @@ public class CarrinhoService {
     }
 
     @Transactional
-    public Carrinho buscarOuCriarCarrinho(String clienteId) {
-        return carrinhoRepository.findByClienteId(clienteId)
-            .orElseGet(() -> criarNovoCarrinho(clienteId));
+    public CarrinhoResponseDTO buscarCarrinho(String clienteId) {
+        Carrinho carrinho = buscarOuCriarEntidade(clienteId);
+        return new CarrinhoResponseDTO(carrinho);
     }
 
     @Transactional
-    public Carrinho adicionarItem(String clienteId, String produtoId, Integer quantidade) {
+    public CarrinhoResponseDTO adicionarItem(String clienteId, String produtoId, Integer quantidade) {
         if (quantidade <= 0) {
             throw new IllegalArgumentException("A quantidade deve ser maior que zero.");
         }
 
-        Carrinho carrinho = buscarOuCriarCarrinho(clienteId);
+        Carrinho carrinho = buscarOuCriarEntidade(clienteId);
         Produto produto = produtoRepository.findById(produtoId)
             .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado. Id: " + produtoId));
 
@@ -62,12 +63,13 @@ public class CarrinhoService {
             carrinho.adicionarItem(novoItem);
         }
 
-        return carrinhoRepository.save(carrinho);
+        Carrinho carrinhoSalvo = carrinhoRepository.save(carrinho);
+        return new CarrinhoResponseDTO(carrinhoSalvo);
     }
 
     @Transactional
-    public Carrinho removerItem(String clienteId, String produtoId) {
-        Carrinho carrinho = buscarOuCriarCarrinho(clienteId);
+    public CarrinhoResponseDTO removerItem(String clienteId, String produtoId) {
+        Carrinho carrinho = buscarOuCriarEntidade(clienteId);
 
         ItemCarrinho itemParaRemover = carrinho.getItens().stream()
             .filter(item -> item.getProduto().getId().equals(produtoId))
@@ -75,16 +77,18 @@ public class CarrinhoService {
             .orElseThrow(() -> new EntityNotFoundException("Item não encontrado no carrinho."));
 
         carrinho.removerItem(itemParaRemover);
-        return carrinhoRepository.save(carrinho);
+
+        Carrinho carrinhoSalvo = carrinhoRepository.save(carrinho);
+        return new CarrinhoResponseDTO(carrinhoSalvo);
     }
 
     @Transactional
-    public Carrinho atualizarQuantidade(String clienteId, String produtoId, Integer novaQuantidade) {
+    public CarrinhoResponseDTO atualizarQuantidade(String clienteId, String produtoId, Integer novaQuantidade) {
         if (novaQuantidade <= 0) {
             return removerItem(clienteId, produtoId);
         }
 
-        Carrinho carrinho = buscarOuCriarCarrinho(clienteId);
+        Carrinho carrinho = buscarOuCriarEntidade(clienteId);
         ItemCarrinho item = carrinho.getItens().stream()
             .filter(i -> i.getProduto().getId().equals(produtoId))
             .findFirst()
@@ -93,14 +97,20 @@ public class CarrinhoService {
         validarEstoque(item.getProduto(), novaQuantidade);
         item.setQuantidade(novaQuantidade);
 
-        return carrinhoRepository.save(carrinho);
+        Carrinho carrinhoSalvo = carrinhoRepository.save(carrinho);
+        return new CarrinhoResponseDTO(carrinhoSalvo);
     }
 
     @Transactional
     public void limparCarrinho(String clienteId) {
-        Carrinho carrinho = buscarOuCriarCarrinho(clienteId);
-        carrinho.getItens().clear(); // OrphanRemoval cuidará de deletar os itens do banco
+        Carrinho carrinho = buscarOuCriarEntidade(clienteId);
+        carrinho.getItens().clear();
         carrinhoRepository.save(carrinho);
+    }
+
+    private Carrinho buscarOuCriarEntidade(String clienteId) {
+        return carrinhoRepository.findByClienteId(clienteId)
+            .orElseGet(() -> criarNovoCarrinho(clienteId));
     }
 
     private Carrinho criarNovoCarrinho(String clienteId) {

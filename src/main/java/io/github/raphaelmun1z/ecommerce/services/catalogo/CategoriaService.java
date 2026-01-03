@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.services.catalogo;
 
+import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.CategoriaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Categoria;
 import io.github.raphaelmun1z.ecommerce.repositories.catalogo.CategoriaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -18,33 +19,36 @@ public class CategoriaService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Categoria> findAll(Pageable pageable) {
-        return repository.findAll(pageable);
+    public Page<CategoriaResponseDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable).map(CategoriaResponseDTO::new);
     }
 
     @Transactional(readOnly = true)
-    public Page<Categoria> findAllActive(Pageable pageable) {
-        return repository.findByAtivaTrue(pageable);
+    public Page<CategoriaResponseDTO> findAllActive(Pageable pageable) {
+        return repository.findByAtivaTrue(pageable).map(CategoriaResponseDTO::new);
     }
 
     @Transactional(readOnly = true)
-    public Categoria findById(String id) {
-        return repository.findById(id)
+    public CategoriaResponseDTO findById(String id) {
+        Categoria entity = repository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada. Id: " + id));
+        return new CategoriaResponseDTO(entity);
     }
 
     @Transactional
-    public Categoria insert(Categoria obj) {
+    public CategoriaResponseDTO insert(Categoria obj) {
         validarUnicidade(obj);
-        return repository.save(obj);
+        Categoria savedObj = repository.save(obj);
+        return new CategoriaResponseDTO(savedObj);
     }
 
     @Transactional
-    public Categoria update(String id, Categoria obj) {
+    public CategoriaResponseDTO update(String id, Categoria obj) {
         try {
             Categoria entity = repository.getReferenceById(id);
             updateData(entity, obj);
-            return repository.save(entity);
+            Categoria savedObj = repository.save(entity);
+            return new CategoriaResponseDTO(savedObj);
         } catch (EntityNotFoundException e) {
             throw new EntityNotFoundException("Categoria não encontrada para atualização. Id: " + id);
         }
@@ -65,14 +69,16 @@ public class CategoriaService {
 
     @Transactional
     public void desativar(String id) {
-        Categoria entity = findById(id);
+        Categoria entity = repository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada. Id: " + id));
         entity.setAtiva(false);
         repository.save(entity);
     }
 
     @Transactional
     public void ativar(String id) {
-        Categoria entity = findById(id);
+        Categoria entity = repository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada. Id: " + id));
         entity.setAtiva(true);
         repository.save(entity);
     }
@@ -81,7 +87,6 @@ public class CategoriaService {
         entity.setNome(obj.getNome());
         entity.setSlug(obj.getSlug());
         entity.setDescricao(obj.getDescricao());
-        entity.setAtiva(obj.getAtiva());
     }
 
     private void validarUnicidade(Categoria obj) {

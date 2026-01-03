@@ -1,7 +1,8 @@
 package io.github.raphaelmun1z.ecommerce.controllers.catalogo;
 
 import io.github.raphaelmun1z.ecommerce.controllers.catalogo.docs.EstoqueControllerDocs;
-import io.github.raphaelmun1z.ecommerce.entities.estoque.MovimentacaoEstoque;
+import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.MovimentacaoEstoqueRequestDTO;
+import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.MovimentacaoEstoqueResponseDTO;
 import io.github.raphaelmun1z.ecommerce.services.catalogo.EstoqueService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -13,7 +14,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping(value = "/estoque")
+@RequestMapping("/estoque")
 public class EstoqueController implements EstoqueControllerDocs {
 
     private final EstoqueService service;
@@ -22,17 +23,19 @@ public class EstoqueController implements EstoqueControllerDocs {
         this.service = service;
     }
 
-    @GetMapping(value = "/historico/{produtoId}")
-    public ResponseEntity<Page<MovimentacaoEstoque>> findHistoricoByProduto(@PathVariable String produtoId, Pageable pageable) {
-        Page<MovimentacaoEstoque> list = service.findHistoricoByProduto(produtoId, pageable);
-        return ResponseEntity.ok().body(list);
+    @Override
+    @GetMapping("/historico/{produtoId}")
+    public ResponseEntity<Page<MovimentacaoEstoqueResponseDTO>> buscarHistorico(@PathVariable String produtoId, Pageable pageable) {
+        Page<MovimentacaoEstoqueResponseDTO> list = service.buscarHistoricoPorProduto(produtoId, pageable);
+        return ResponseEntity.ok(list);
     }
 
-    @PostMapping(value = "/movimentar")
-    public ResponseEntity<MovimentacaoEstoque> registrarMovimentacao(@Valid @RequestBody MovimentacaoEstoque obj) {
-        obj = service.registrarMovimentacao(obj);
+    @Override
+    @PostMapping("/movimentacao")
+    public ResponseEntity<MovimentacaoEstoqueResponseDTO> registrarMovimentacao(@Valid @RequestBody MovimentacaoEstoqueRequestDTO dto) {
+        MovimentacaoEstoqueResponseDTO newObj = service.registrarMovimentacaoManual(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-            .buildAndExpand(obj.getId()).toUri();
-        return ResponseEntity.created(uri).body(obj);
+            .buildAndExpand(newObj.getId()).toUri();
+        return ResponseEntity.created(uri).body(newObj);
     }
 }

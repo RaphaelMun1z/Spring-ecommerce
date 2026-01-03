@@ -1,6 +1,10 @@
 package io.github.raphaelmun1z.ecommerce.services.catalogo;
 
+import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.ProdutoRequestDTO;
+import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.ProdutoResponseDTO;
+import io.github.raphaelmun1z.ecommerce.entities.catalogo.Categoria;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
+import io.github.raphaelmun1z.ecommerce.repositories.catalogo.CategoriaRepository;
 import io.github.raphaelmun1z.ecommerce.repositories.catalogo.ProdutoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Pageable;
@@ -14,103 +18,115 @@ import java.math.BigDecimal;
 @Service
 public class ProdutoService {
     private final ProdutoRepository repository;
+    private final CategoriaRepository categoriaRepository;
 
-    public ProdutoService(ProdutoRepository repository) {
+    public ProdutoService(ProdutoRepository repository, CategoriaRepository categoriaRepository) {
         this.repository = repository;
+        this.categoriaRepository = categoriaRepository;
     }
 
     @Transactional(readOnly = true)
-    public Page<Produto> findAll(Pageable pageable) {
-        return repository.findAll(pageable);
+    public Page<ProdutoResponseDTO> listarTodos(Pageable pageable) {
+        return repository.findAll(pageable).map(ProdutoResponseDTO::new);
     }
 
     @Transactional(readOnly = true)
-    public Page<Produto> findAllActive(Pageable pageable) {
-        return repository.findByAtivoTrue(pageable);
+    public Page<ProdutoResponseDTO> listarAtivos(Pageable pageable) {
+        return repository.findByAtivoTrue(pageable).map(ProdutoResponseDTO::new);
     }
 
     @Transactional(readOnly = true)
-    public Produto findById(String id) {
-        return repository.findById(id)
+    public ProdutoResponseDTO buscarPorId(String id) {
+        Produto produto = repository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado. Id: " + id));
+        return new ProdutoResponseDTO(produto);
     }
 
     @Transactional
-    public Produto insert(Produto obj) {
-        if (repository.existsByCodigoControle(obj.getCodigoControle())) {
-            throw new IllegalArgumentException("Já existe um produto cadastrado com o código de controle (SKU): " + obj.getCodigoControle());
+    public ProdutoResponseDTO criar(ProdutoRequestDTO dto) {
+        if (repository.existsByCodigoControle(dto.getCodigoControle())) {
+            throw new IllegalArgumentException("Já existe um produto com este SKU: " + dto.getCodigoControle());
         }
 
-        validarRegrasDeNegocio(obj);
+        Produto entity = new Produto();
+        converterDtoParaEntidade(dto, entity);
+        validarRegrasDeNegocio(entity);
 
-        if (obj.getAtivo() == null) obj.setAtivo(true);
-
-        return repository.save(obj);
+        Produto saved = repository.save(entity);
+        return new ProdutoResponseDTO(saved);
     }
 
     @Transactional
-    public Produto update(String id, Produto obj) {
-        try {
-            Produto entity = repository.getReferenceById(id);
+    public ProdutoResponseDTO atualizar(String id, ProdutoRequestDTO dto) {
+        Produto entity = repository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado. Id: " + id));
 
-            validarRegrasDeNegocio(obj);
+        converterDtoParaEntidade(dto, entity);
+        validarRegrasDeNegocio(entity);
 
-            updateData(entity, obj);
-            return repository.save(entity);
-        } catch (EntityNotFoundException e) {
-            throw new EntityNotFoundException("Produto não encontrado para atualização. Id: " + id);
-        }
+        Produto saved = repository.save(entity);
+        return new ProdutoResponseDTO(saved);
     }
 
     @Transactional
-    public void delete(String id) {
+    public void excluir(String id) {
         if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Produto não encontrado para exclusão. Id: " + id);
+            throw new EntityNotFoundException("Produto não encontrado. Id: " + id);
         }
         try {
             repository.deleteById(id);
             repository.flush();
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("Integridade crítica: Não é possível excluir este produto pois ele possui histórico de vendas ou movimentações. Sugestão: Utilize a opção de desativar o produto.");
+            throw new IllegalStateException("Não é possível excluir este produto pois ele possui histórico de vendas.");
         }
     }
 
     @Transactional
     public void desativar(String id) {
-        Produto entity = findById(id);
-        if (!entity.getAtivo()) {
-            throw new IllegalArgumentException("O produto já está desativado.");
-        }
+        Produto entity = repository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado. Id: " + id));
+
+        if (!entity.getAtivo()) throw new IllegalArgumentException("O produto já está desativado.");
+
         entity.setAtivo(false);
         repository.save(entity);
     }
 
     @Transactional
     public void ativar(String id) {
-        Produto entity = findById(id);
-        if (entity.getAtivo()) {
-            throw new IllegalArgumentException("O produto já está ativo.");
-        }
+        Produto entity = repository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado. Id: " + id));
+
+        if (entity.getAtivo()) throw new IllegalArgumentException("O produto já está ativo.");
+
         entity.setAtivo(true);
         repository.save(entity);
     }
 
-    private void updateData(Produto entity, Produto obj) {
-        entity.setTitulo(obj.getTitulo());
-        entity.setDescricao(obj.getDescricao());
-        entity.setPreco(obj.getPreco());
-        entity.setPrecoPromocional(obj.getPrecoPromocional());
-        entity.setEstoque(obj.getEstoque());
-        entity.setAtivo(obj.getAtivo());
-        entity.setPesoKg(obj.getPesoKg());
-        entity.setDimensoes(obj.getDimensoes());
+    private void converterDtoParaEntidade(ProdutoRequestDTO dto, Produto entity) {
+        entity.setCodigoControle(dto.getCodigoControle());
+        entity.setTitulo(dto.getTitulo());
+        entity.setDescricao(dto.getDescricao());
+        entity.setPreco(dto.getPreco());
+        entity.setPrecoPromocional(dto.getPrecoPromocional());
+        entity.setEstoque(dto.getEstoque());
+        entity.setAtivo(dto.getAtivo());
+        entity.setPesoKg(dto.getPesoKg());
+        entity.setDimensoes(dto.getDimensoes());
+
+        if (dto.getCategoriaId() != null) {
+            Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
+                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada. Id: " + dto.getCategoriaId()));
+            entity.setCategoria(categoria);
+        } else {
+            entity.setCategoria(null);
+        }
     }
 
     private void validarRegrasDeNegocio(Produto p) {
         if (p.getPreco() == null || p.getPreco().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("O preço do produto deve ser maior que zero.");
         }
-
         if (p.getPrecoPromocional() != null) {
             if (p.getPrecoPromocional().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new IllegalArgumentException("O preço promocional deve ser maior que zero.");
@@ -119,7 +135,6 @@ public class ProdutoService {
                 throw new IllegalArgumentException("O preço promocional deve ser menor que o preço original.");
             }
         }
-
         if (p.getEstoque() == null || p.getEstoque() < 0) {
             throw new IllegalArgumentException("A quantidade em estoque não pode ser negativa.");
         }

@@ -1,4 +1,4 @@
-package io.github.raphaelmun1z.ecommerce.dtos.res;
+package io.github.raphaelmun1z.ecommerce.dtos.res.usuario;
 
 import io.github.raphaelmun1z.ecommerce.entities.usuario.Cliente;
 import io.swagger.v3.oas.annotations.media.Schema;

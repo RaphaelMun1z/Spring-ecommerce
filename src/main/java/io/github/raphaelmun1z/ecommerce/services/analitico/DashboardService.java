@@ -2,7 +2,7 @@ package io.github.raphaelmun1z.ecommerce.services.analitico;
 
 import io.github.raphaelmun1z.ecommerce.dtos.res.ChartDataResponseDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.DashboardResponseDTO;
-import io.github.raphaelmun1z.ecommerce.dtos.res.PedidoResponseDTO;
+import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.PedidoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.StatCardResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pedido;

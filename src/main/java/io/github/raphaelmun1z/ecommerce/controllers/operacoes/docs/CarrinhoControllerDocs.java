@@ -1,6 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs;
 
-import io.github.raphaelmun1z.ecommerce.entities.carrinho.Carrinho;
+import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.CarrinhoResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,18 +16,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface CarrinhoControllerDocs {
 
     @Operation(summary = "Buscar carrinho do cliente", description = "Retorna o carrinho ativo do cliente. Se não existir, cria um novo vazio.")
-    @ApiResponse(responseCode = "200", description = "Carrinho recuperado com sucesso", content = @Content(schema = @Schema(implementation = Carrinho.class)))
-    ResponseEntity<Carrinho> buscarCarrinho(
+    @ApiResponse(responseCode = "200", description = "Carrinho recuperado com sucesso", content = @Content(schema = @Schema(implementation = CarrinhoResponseDTO.class)))
+    ResponseEntity<CarrinhoResponseDTO> buscarCarrinho(
         @Parameter(description = "ID do cliente") @PathVariable String clienteId
     );
 
     @Operation(summary = "Adicionar item ao carrinho", description = "Adiciona um produto ao carrinho ou incrementa a quantidade se já existir.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Item adicionado com sucesso"),
+        @ApiResponse(responseCode = "200", description = "Item adicionado com sucesso", content = @Content(schema = @Schema(implementation = CarrinhoResponseDTO.class))),
         @ApiResponse(responseCode = "400", description = "Estoque insuficiente ou produto inativo", content = @Content),
         @ApiResponse(responseCode = "404", description = "Cliente ou Produto não encontrado", content = @Content)
     })
-    ResponseEntity<Carrinho> adicionarItem(
+    ResponseEntity<CarrinhoResponseDTO> adicionarItem(
         @Parameter(description = "ID do cliente") @PathVariable String clienteId,
         @Parameter(description = "ID do produto") @RequestParam String produtoId,
         @Parameter(description = "Quantidade a adicionar (Padrão: 1)") @RequestParam(defaultValue = "1") Integer quantidade
@@ -35,21 +35,21 @@ public interface CarrinhoControllerDocs {
 
     @Operation(summary = "Remover item do carrinho", description = "Remove um produto específico do carrinho do cliente.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Item removido com sucesso"),
+        @ApiResponse(responseCode = "200", description = "Item removido com sucesso", content = @Content(schema = @Schema(implementation = CarrinhoResponseDTO.class))),
         @ApiResponse(responseCode = "404", description = "Item não encontrado no carrinho", content = @Content)
     })
-    ResponseEntity<Carrinho> removerItem(
+    ResponseEntity<CarrinhoResponseDTO> removerItem(
         @Parameter(description = "ID do cliente") @PathVariable String clienteId,
         @Parameter(description = "ID do produto a remover") @PathVariable String produtoId
     );
 
     @Operation(summary = "Atualizar quantidade do item", description = "Define uma nova quantidade para um item já existente no carrinho.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Quantidade atualizada com sucesso"),
+        @ApiResponse(responseCode = "200", description = "Quantidade atualizada com sucesso", content = @Content(schema = @Schema(implementation = CarrinhoResponseDTO.class))),
         @ApiResponse(responseCode = "400", description = "Quantidade inválida ou estoque insuficiente", content = @Content),
         @ApiResponse(responseCode = "404", description = "Item não encontrado no carrinho", content = @Content)
     })
-    ResponseEntity<Carrinho> atualizarQuantidade(
+    ResponseEntity<CarrinhoResponseDTO> atualizarQuantidade(
         @Parameter(description = "ID do cliente") @PathVariable String clienteId,
         @Parameter(description = "ID do produto") @PathVariable String produtoId,
         @Parameter(description = "Nova quantidade absoluta") @RequestParam Integer quantidade

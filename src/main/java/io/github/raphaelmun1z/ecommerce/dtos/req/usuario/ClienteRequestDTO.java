@@ -1,4 +1,4 @@
-package io.github.raphaelmun1z.ecommerce.dtos.req;
+package io.github.raphaelmun1z.ecommerce.dtos.req.usuario;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.catalogo.docs;
 
+import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.CategoriaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Categoria;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,32 +21,32 @@ public interface CategoriaControllerDocs {
 
     @Operation(summary = "Listar todas as categorias (Administrativo)", description = "Retorna uma lista paginada de todas as categorias, incluindo inativas.")
     @ApiResponse(responseCode = "200", description = "Lista recuperada com sucesso")
-    ResponseEntity<Page<Categoria>> findAll(@Parameter(hidden = true) Pageable pageable);
+    ResponseEntity<Page<CategoriaResponseDTO>> listarTodas(@Parameter(hidden = true) Pageable pageable);
 
     @Operation(summary = "Listar categorias ativas (Vitrine)", description = "Retorna apenas categorias marcadas como ativas.")
     @ApiResponse(responseCode = "200", description = "Lista recuperada com sucesso")
-    ResponseEntity<Page<Categoria>> findAllActive(@Parameter(hidden = true) Pageable pageable);
+    ResponseEntity<Page<CategoriaResponseDTO>> listarAtivas(@Parameter(hidden = true) Pageable pageable);
 
     @Operation(summary = "Buscar categoria por ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Categoria encontrada", content = @Content(schema = @Schema(implementation = Categoria.class))),
+        @ApiResponse(responseCode = "200", description = "Categoria encontrada", content = @Content(schema = @Schema(implementation = CategoriaResponseDTO.class))),
         @ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content)
     })
-    ResponseEntity<Categoria> findById(@Parameter(description = "ID da categoria") @PathVariable String id);
+    ResponseEntity<CategoriaResponseDTO> buscarPorId(@Parameter(description = "ID da categoria") @PathVariable String id);
 
     @Operation(summary = "Cadastrar nova categoria")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Categoria criada com sucesso"),
+        @ApiResponse(responseCode = "201", description = "Categoria criada com sucesso", content = @Content(schema = @Schema(implementation = CategoriaResponseDTO.class))),
         @ApiResponse(responseCode = "400", description = "Erro de validação ou nome/slug duplicado", content = @Content)
     })
-    ResponseEntity<Categoria> insert(@RequestBody @Valid Categoria obj);
+    ResponseEntity<CategoriaResponseDTO> criar(@RequestBody @Valid Categoria obj);
 
     @Operation(summary = "Atualizar categoria", description = "Atualiza os dados de uma categoria existente.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Categoria atualizada com sucesso"),
+        @ApiResponse(responseCode = "200", description = "Categoria atualizada com sucesso", content = @Content(schema = @Schema(implementation = CategoriaResponseDTO.class))),
         @ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content)
     })
-    ResponseEntity<Categoria> update(@Parameter(description = "ID da categoria") @PathVariable String id, @RequestBody @Valid Categoria obj);
+    ResponseEntity<CategoriaResponseDTO> atualizar(@Parameter(description = "ID da categoria") @PathVariable String id, @RequestBody @Valid Categoria obj);
 
     @Operation(summary = "Excluir categoria (Físico)", description = "Remove a categoria do banco de dados. Caso possua produtos ou subcategorias, retornará erro de integridade.")
     @ApiResponses(value = {
@@ -53,7 +54,7 @@ public interface CategoriaControllerDocs {
         @ApiResponse(responseCode = "409", description = "Violação de integridade (possui produtos vinculados)", content = @Content),
         @ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content)
     })
-    ResponseEntity<Void> delete(@Parameter(description = "ID da categoria") @PathVariable String id);
+    ResponseEntity<Void> excluir(@Parameter(description = "ID da categoria") @PathVariable String id);
 
     @Operation(summary = "Desativar categoria", description = "Realiza a exclusão lógica, removendo a categoria da vitrine.")
     @ApiResponse(responseCode = "204", description = "Categoria desativada com sucesso")

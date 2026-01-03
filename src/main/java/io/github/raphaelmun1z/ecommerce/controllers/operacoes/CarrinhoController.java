@@ -1,7 +1,7 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes;
 
 import io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs.CarrinhoControllerDocs;
-import io.github.raphaelmun1z.ecommerce.entities.carrinho.Carrinho;
+import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.CarrinhoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.services.operacoes.CarrinhoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,34 +16,32 @@ public class CarrinhoController implements CarrinhoControllerDocs {
     }
 
     @GetMapping("/{clienteId}")
-    public ResponseEntity<Carrinho> buscarCarrinho(@PathVariable String clienteId) {
-        Carrinho carrinho = service.buscarOuCriarCarrinho(clienteId);
+    public ResponseEntity<CarrinhoResponseDTO> buscarCarrinho(@PathVariable String clienteId) {
+        CarrinhoResponseDTO carrinho = service.buscarCarrinho(clienteId);
         return ResponseEntity.ok(carrinho);
     }
 
     @PostMapping("/{clienteId}/adicionar")
-    public ResponseEntity<Carrinho> adicionarItem(
+    public ResponseEntity<CarrinhoResponseDTO> adicionarItem(
         @PathVariable String clienteId,
         @RequestParam String produtoId,
         @RequestParam(defaultValue = "1") Integer quantidade) {
-
-        Carrinho carrinho = service.adicionarItem(clienteId, produtoId, quantidade);
+        CarrinhoResponseDTO carrinho = service.adicionarItem(clienteId, produtoId, quantidade);
         return ResponseEntity.ok(carrinho);
     }
 
     @DeleteMapping("/{clienteId}/remover/{produtoId}")
-    public ResponseEntity<Carrinho> removerItem(@PathVariable String clienteId, @PathVariable String produtoId) {
-        Carrinho carrinho = service.removerItem(clienteId, produtoId);
+    public ResponseEntity<CarrinhoResponseDTO> removerItem(@PathVariable String clienteId, @PathVariable String produtoId) {
+        CarrinhoResponseDTO carrinho = service.removerItem(clienteId, produtoId);
         return ResponseEntity.ok(carrinho);
     }
 
     @PatchMapping("/{clienteId}/atualizar/{produtoId}")
-    public ResponseEntity<Carrinho> atualizarQuantidade(
+    public ResponseEntity<CarrinhoResponseDTO> atualizarQuantidade(
         @PathVariable String clienteId,
         @PathVariable String produtoId,
         @RequestParam Integer quantidade) {
-
-        Carrinho carrinho = service.atualizarQuantidade(clienteId, produtoId, quantidade);
+        CarrinhoResponseDTO carrinho = service.atualizarQuantidade(clienteId, produtoId, quantidade);
         return ResponseEntity.ok(carrinho);
     }
 

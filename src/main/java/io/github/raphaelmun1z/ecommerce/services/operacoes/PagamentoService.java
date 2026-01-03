@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.services.operacoes;
 
+import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.PagamentoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPagamento;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pagamento;
@@ -23,13 +24,13 @@ public class PagamentoService {
     }
 
     @Transactional(readOnly = true)
-    public Pagamento buscarPorId(String id) {
-        return pagamentoRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Pagamento não encontrado. Id do Pedido: " + id));
+    public PagamentoResponseDTO buscarPorId(String id) {
+        Pagamento pagamento = buscarEntidadePorId(id);
+        return new PagamentoResponseDTO(pagamento);
     }
 
     @Transactional
-    public Pagamento criarPagamento(Pagamento pagamento, String pedidoId) {
+    public PagamentoResponseDTO criarPagamento(Pagamento pagamento, String pedidoId) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
             .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado. Id: " + pedidoId));
 
@@ -50,16 +51,17 @@ public class PagamentoService {
         pagamento.setStatus(StatusPagamento.PENDENTE);
         pagamento.setDataPagamento(LocalDateTime.now());
 
-        return pagamentoRepository.save(pagamento);
+        Pagamento pagamentoSalvo = pagamentoRepository.save(pagamento);
+        return new PagamentoResponseDTO(pagamentoSalvo);
     }
 
     @Transactional
-    public Pagamento atualizarStatus(String id, StatusPagamento novoStatus, String codigoGateway) {
-        Pagamento pagamento = buscarPorId(id);
+    public PagamentoResponseDTO atualizarStatus(String id, StatusPagamento novoStatus, String codigoGateway) {
+        Pagamento pagamento = buscarEntidadePorId(id);
         StatusPagamento statusAtual = pagamento.getStatus();
 
         if (statusAtual == novoStatus) {
-            return pagamento;
+            return new PagamentoResponseDTO(pagamento);
         }
 
         validarTransicaoStatus(statusAtual, novoStatus);
@@ -73,7 +75,12 @@ public class PagamentoService {
 
         sincronizarStatusPedido(pagamentoSalvo.getPedido(), novoStatus);
 
-        return pagamentoSalvo;
+        return new PagamentoResponseDTO(pagamentoSalvo);
+    }
+
+    private Pagamento buscarEntidadePorId(String id) {
+        return pagamentoRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Pagamento não encontrado. Id do Pedido: " + id));
     }
 
     private void validarTransicaoStatus(StatusPagamento atual, StatusPagamento novo) {
