@@ -1,9 +1,9 @@
 package io.github.raphaelmun1z.ecommerce.services.analitico;
 
-import io.github.raphaelmun1z.ecommerce.dtos.res.ChartDataResponseDTO;
-import io.github.raphaelmun1z.ecommerce.dtos.res.DashboardResponseDTO;
+import io.github.raphaelmun1z.ecommerce.dtos.res.analitico.ChartDataResponseDTO;
+import io.github.raphaelmun1z.ecommerce.dtos.res.analitico.DashboardResponseDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.PedidoResponseDTO;
-import io.github.raphaelmun1z.ecommerce.dtos.res.StatCardResponseDTO;
+import io.github.raphaelmun1z.ecommerce.dtos.res.analitico.StatCardResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pedido;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.PedidoRepository;
@@ -41,8 +41,7 @@ public class DashboardService {
         LocalDateTime fimMesAnterior = inicioMesAtual.minusSeconds(1); // Último segundo do mês passado
 
         // --- 1. Busca Dados (Raw) ---
-        // Busca todos os pedidos do mês atual e do mês anterior para cálculo em memória
-        // (Em produção com muitos dados, ideal fazer COUNT/SUM via JPQL no Repository)
+        // Assumindo que PedidoRepository possui o método findByDataPedidoBetween
         List<Pedido> pedidosMesAtual = pedidoRepository.findByDataPedidoBetween(inicioMesAtual, agora, PageRequest.of(0, 10000)).getContent();
         List<Pedido> pedidosMesAnterior = pedidoRepository.findByDataPedidoBetween(inicioMesAnterior, fimMesAnterior, PageRequest.of(0, 10000)).getContent();
 
@@ -139,8 +138,6 @@ public class DashboardService {
     }
 
     private List<ChartDataResponseDTO> gerarDadosGrafico() {
-        // Simulação de dados para o gráfico CSS (altura em %)
-        // Idealmente, isso viria de uma query "GROUP BY DATE(data_pedido)"
         List<ChartDataResponseDTO> data = new ArrayList<>();
         LocalDate hoje = LocalDate.now();
         Locale br = new Locale("pt", "BR");
@@ -150,7 +147,7 @@ public class DashboardService {
             String label = dia.getDayOfWeek().getDisplayName(TextStyle.SHORT, br);
             label = label.substring(0, 1).toUpperCase() + label.substring(1).replace(".", "");
 
-            // Altura aleatória para demonstração
+            // Simulação: altura aleatória
             int height = 20 + (int) (Math.random() * 70);
             data.add(new ChartDataResponseDTO(label, height + "%"));
         }

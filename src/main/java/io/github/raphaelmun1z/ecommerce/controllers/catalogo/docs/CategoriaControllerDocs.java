@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.catalogo.docs;
 
+import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.CategoriaRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.CategoriaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Categoria;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,14 +40,14 @@ public interface CategoriaControllerDocs {
         @ApiResponse(responseCode = "201", description = "Categoria criada com sucesso", content = @Content(schema = @Schema(implementation = CategoriaResponseDTO.class))),
         @ApiResponse(responseCode = "400", description = "Erro de validação ou nome/slug duplicado", content = @Content)
     })
-    ResponseEntity<CategoriaResponseDTO> criar(@RequestBody @Valid Categoria obj);
+    ResponseEntity<CategoriaResponseDTO> criar(@RequestBody @Valid CategoriaRequestDTO dto);
 
     @Operation(summary = "Atualizar categoria", description = "Atualiza os dados de uma categoria existente.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Categoria atualizada com sucesso", content = @Content(schema = @Schema(implementation = CategoriaResponseDTO.class))),
         @ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content)
     })
-    ResponseEntity<CategoriaResponseDTO> atualizar(@Parameter(description = "ID da categoria") @PathVariable String id, @RequestBody @Valid Categoria obj);
+    ResponseEntity<CategoriaResponseDTO> atualizar(@Parameter(description = "ID da categoria") @PathVariable String id, @RequestBody @Valid CategoriaRequestDTO dto);
 
     @Operation(summary = "Excluir categoria (Físico)", description = "Remove a categoria do banco de dados. Caso possua produtos ou subcategorias, retornará erro de integridade.")
     @ApiResponses(value = {

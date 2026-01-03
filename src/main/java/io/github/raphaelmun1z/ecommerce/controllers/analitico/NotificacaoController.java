@@ -1,6 +1,7 @@
 package io.github.raphaelmun1z.ecommerce.controllers.analitico;
 
 import io.github.raphaelmun1z.ecommerce.controllers.analitico.docs.NotificacaoControllerDocs;
+import io.github.raphaelmun1z.ecommerce.dtos.res.analitico.NotificacaoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.Notificacao;
 import io.github.raphaelmun1z.ecommerce.services.analitico.NotificacaoService;
 import org.springframework.data.domain.Page;
@@ -20,12 +21,13 @@ public class NotificacaoController implements NotificacaoControllerDocs {
         this.service = service;
     }
 
+    @Override
     @GetMapping("/cliente/{clienteId}")
-    public ResponseEntity<Page<Notificacao>> listarPorCliente(
+    public ResponseEntity<Page<NotificacaoResponseDTO>> listarPorCliente(
         @PathVariable String clienteId,
         Pageable pageable) {
 
-        Page<Notificacao> list = service.listarPorCliente(clienteId, pageable);
+        Page<NotificacaoResponseDTO> list = service.listarPorCliente(clienteId, pageable);
         return ResponseEntity.ok(list);
     }
 }

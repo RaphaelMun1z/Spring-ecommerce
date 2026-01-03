@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.services.analitico;
 
+import io.github.raphaelmun1z.ecommerce.dtos.res.analitico.NotificacaoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.Notificacao;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusEnvio;
 import io.github.raphaelmun1z.ecommerce.entities.enums.TipoCanal;
@@ -25,8 +26,9 @@ public class NotificacaoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Notificacao> listarPorCliente(String clienteId, Pageable pageable) {
-        return repository.findByClienteId(clienteId, pageable);
+    public Page<NotificacaoResponseDTO> listarPorCliente(String clienteId, Pageable pageable) {
+        return repository.findByClienteId(clienteId, pageable)
+            .map(NotificacaoResponseDTO::new);
     }
 
     @Async
@@ -51,10 +53,10 @@ public class NotificacaoService {
 
     private void enviarEmailSimulado(Cliente cliente, String titulo, String mensagem) {
         try {
-            // Aqui entraria a lógica real: JavaMailSender.send(...)
+            // Lógica de simulação de envio
             logger.info(" Enviando E-mail para: {} | Assunto: {}", cliente.getEmail(), titulo);
 
-            // Persiste o log de sucesso
+            // Persistência do log de sucesso
             Notificacao notificacao = new Notificacao(
                 cliente,
                 cliente.getEmail(),
@@ -68,7 +70,7 @@ public class NotificacaoService {
         } catch (Exception e) {
             logger.error("Erro ao enviar notificação: {}", e.getMessage());
 
-            // Persiste o log de falha
+            // Persistência do log de falha
             Notificacao falha = new Notificacao(
                 cliente,
                 cliente.getEmail(),

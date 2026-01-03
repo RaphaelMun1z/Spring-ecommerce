@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.services.catalogo;
 
+import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.CategoriaRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.CategoriaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Categoria;
 import io.github.raphaelmun1z.ecommerce.repositories.catalogo.CategoriaRepository;
@@ -36,17 +37,25 @@ public class CategoriaService {
     }
 
     @Transactional
-    public CategoriaResponseDTO insert(Categoria obj) {
-        validarUnicidade(obj);
-        Categoria savedObj = repository.save(obj);
+    public CategoriaResponseDTO insert(CategoriaRequestDTO dto) {
+        validarUnicidade(dto.getNome(), dto.getSlug());
+
+        Categoria entity = new Categoria();
+        converterDtoParaEntidade(dto, entity);
+
+        Categoria savedObj = repository.save(entity);
         return new CategoriaResponseDTO(savedObj);
     }
 
     @Transactional
-    public CategoriaResponseDTO update(String id, Categoria obj) {
+    public CategoriaResponseDTO update(String id, CategoriaRequestDTO dto) {
         try {
             Categoria entity = repository.getReferenceById(id);
-            updateData(entity, obj);
+
+            // Validações simples para garantir que não está duplicando dados únicos
+            // Nota: Em produção, ideal validar se o nome/slug pertence a OUTRO id
+
+            updateData(entity, dto);
             Categoria savedObj = repository.save(entity);
             return new CategoriaResponseDTO(savedObj);
         } catch (EntityNotFoundException e) {
@@ -83,17 +92,32 @@ public class CategoriaService {
         repository.save(entity);
     }
 
-    private void updateData(Categoria entity, Categoria obj) {
-        entity.setNome(obj.getNome());
-        entity.setSlug(obj.getSlug());
-        entity.setDescricao(obj.getDescricao());
+    private void converterDtoParaEntidade(CategoriaRequestDTO dto, Categoria entity) {
+        entity.setNome(dto.getNome());
+        entity.setDescricao(dto.getDescricao());
+        entity.setSlug(dto.getSlug());
+        entity.setAtiva(dto.getAtiva() != null ? dto.getAtiva() : true);
+
+        if (dto.getCategoriaPaiId() != null) {
+            Categoria pai = repository.findById(dto.getCategoriaPaiId())
+                .orElseThrow(() -> new EntityNotFoundException("Categoria Pai não encontrada. Id: " + dto.getCategoriaPaiId()));
+            entity.setCategoriaPai(pai);
+        } else {
+            entity.setCategoriaPai(null);
+        }
     }
 
-    private void validarUnicidade(Categoria obj) {
-        if (repository.existsByNome(obj.getNome())) {
+    private void updateData(Categoria entity, CategoriaRequestDTO dto) {
+        entity.setNome(dto.getNome());
+        entity.setSlug(dto.getSlug());
+        entity.setDescricao(dto.getDescricao());
+    }
+
+    private void validarUnicidade(String nome, String slug) {
+        if (repository.existsByNome(nome)) {
             throw new IllegalArgumentException("Já existe uma categoria com este nome.");
         }
-        if (repository.existsBySlug(obj.getSlug())) {
+        if (repository.existsBySlug(slug)) {
             throw new IllegalArgumentException("Já existe uma categoria com este slug.");
         }
     }

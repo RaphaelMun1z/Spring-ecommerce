@@ -1,21 +1,24 @@
-package io.github.raphaelmun1z.ecommerce.dtos.res;
+package io.github.raphaelmun1z.ecommerce.dtos.res.analitico;
 
 import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.PedidoResponseDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
-@Schema(description = "Objeto de resposta consolidado para o dashboard administrativo")
+@Schema(description = "DTO agregador para a visão geral do Dashboard")
 public class DashboardResponseDTO {
 
-    @Schema(description = "Lista de cartões de estatísticas principais (KPIs)")
+    @Schema(description = "Lista de cards estatísticos (KPIs)")
     private List<StatCardResponseDTO> stats;
 
-    @Schema(description = "Dados para alimentação de gráficos visuais")
+    @Schema(description = "Dados para o gráfico de vendas semanais")
     private List<ChartDataResponseDTO> chartData;
 
-    @Schema(description = "Lista simplificada dos pedidos mais recentes")
+    @Schema(description = "Lista dos pedidos mais recentes")
     private List<PedidoResponseDTO> recentOrders;
+
+    public DashboardResponseDTO() {
+    }
 
     public DashboardResponseDTO(List<StatCardResponseDTO> stats, List<ChartDataResponseDTO> chartData, List<PedidoResponseDTO> recentOrders) {
         this.stats = stats;

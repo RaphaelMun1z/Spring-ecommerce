@@ -1,6 +1,7 @@
 package io.github.raphaelmun1z.ecommerce.controllers.catalogo;
 
 import io.github.raphaelmun1z.ecommerce.controllers.catalogo.docs.CategoriaControllerDocs;
+import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.CategoriaRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.CategoriaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Categoria;
 import io.github.raphaelmun1z.ecommerce.services.catalogo.CategoriaService;
@@ -45,8 +46,8 @@ public class CategoriaController implements CategoriaControllerDocs {
 
     @Override
     @PostMapping
-    public ResponseEntity<CategoriaResponseDTO> criar(@Valid @RequestBody Categoria obj) {
-        CategoriaResponseDTO newObj = service.insert(obj);
+    public ResponseEntity<CategoriaResponseDTO> criar(@Valid @RequestBody CategoriaRequestDTO dto) {
+        CategoriaResponseDTO newObj = service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
             .buildAndExpand(newObj.getId()).toUri();
         return ResponseEntity.created(uri).body(newObj);
@@ -54,8 +55,8 @@ public class CategoriaController implements CategoriaControllerDocs {
 
     @Override
     @PutMapping(value = "/{id}")
-    public ResponseEntity<CategoriaResponseDTO> atualizar(@PathVariable String id, @Valid @RequestBody Categoria obj) {
-        CategoriaResponseDTO newObj = service.update(id, obj);
+    public ResponseEntity<CategoriaResponseDTO> atualizar(@PathVariable String id, @Valid @RequestBody CategoriaRequestDTO dto) {
+        CategoriaResponseDTO newObj = service.update(id, dto);
         return ResponseEntity.ok().body(newObj);
     }
 

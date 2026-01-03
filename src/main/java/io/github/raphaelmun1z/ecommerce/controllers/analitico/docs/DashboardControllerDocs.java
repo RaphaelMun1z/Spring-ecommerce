@@ -1,6 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.analitico.docs;
 
-import io.github.raphaelmun1z.ecommerce.dtos.res.DashboardResponseDTO;
+import io.github.raphaelmun1z.ecommerce.dtos.res.analitico.DashboardResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
