@@ -84,8 +84,9 @@ session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 authorizeHttpRequests -> authorizeHttpRequests
                     .requestMatchers(
                          "/auth/**",
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**"
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**"
                     ).permitAll()
                     .anyRequest().authenticated()
                 )
