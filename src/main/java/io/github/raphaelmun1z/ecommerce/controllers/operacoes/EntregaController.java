@@ -1,6 +1,7 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes;
 
 import io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs.EntregaControllerDocs;
+import io.github.raphaelmun1z.ecommerce.dtos.req.operacoes.EntregaRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.EntregaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusEntrega;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Entrega;
@@ -38,8 +39,8 @@ public class EntregaController implements EntregaControllerDocs {
 
     @Override
     @PostMapping("/pedido/{pedidoId}")
-    public ResponseEntity<EntregaResponseDTO> criarEntrega(@PathVariable String pedidoId, @Valid @RequestBody Entrega entrega) {
-        EntregaResponseDTO newObj = service.criarEntrega(entrega, pedidoId);
+    public ResponseEntity<EntregaResponseDTO> criarEntrega(@PathVariable String pedidoId, @Valid @RequestBody EntregaRequestDTO dto) {
+        EntregaResponseDTO newObj = service.criarEntrega(dto, pedidoId);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
             .buildAndExpand(newObj.getId()).toUri();
         return ResponseEntity.created(uri).body(newObj);

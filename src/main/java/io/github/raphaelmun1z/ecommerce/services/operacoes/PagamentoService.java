@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.services.operacoes;
 
+import io.github.raphaelmun1z.ecommerce.dtos.req.operacoes.PagamentoRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.PagamentoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPagamento;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
@@ -30,7 +31,7 @@ public class PagamentoService {
     }
 
     @Transactional
-    public PagamentoResponseDTO criarPagamento(Pagamento pagamento, String pedidoId) {
+    public PagamentoResponseDTO criarPagamento(PagamentoRequestDTO dto, String pedidoId) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
             .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado. Id: " + pedidoId));
 
@@ -42,12 +43,16 @@ public class PagamentoService {
             throw new IllegalStateException("Não é possível pagar um pedido que não está aguardando pagamento. Status atual: " + pedido.getStatus());
         }
 
-        if (pagamento.getValor().compareTo(pedido.getValorTotal()) != 0) {
-            throw new IllegalArgumentException("O valor do pagamento (" + pagamento.getValor() +
+        if (dto.getValor().compareTo(pedido.getValorTotal()) != 0) {
+            throw new IllegalArgumentException("O valor do pagamento (" + dto.getValor() +
                 ") diverge do total do pedido (" + pedido.getValorTotal() + ").");
         }
 
+        Pagamento pagamento = new Pagamento();
         pagamento.setPedido(pedido);
+        pagamento.setMetodo(dto.getMetodo());
+        pagamento.setValor(dto.getValor());
+        pagamento.setNumeroParcelas(dto.getNumeroParcelas() != null ? dto.getNumeroParcelas() : 1);
         pagamento.setStatus(StatusPagamento.PENDENTE);
         pagamento.setDataPagamento(LocalDateTime.now());
 

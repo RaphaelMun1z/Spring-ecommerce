@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs;
 
+import io.github.raphaelmun1z.ecommerce.dtos.req.operacoes.PagamentoRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.PagamentoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPagamento;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pagamento;
@@ -36,7 +37,7 @@ public interface PagamentoControllerDocs {
     })
     ResponseEntity<PagamentoResponseDTO> criarPagamento(
         @Parameter(description = "ID do pedido") @PathVariable String pedidoId,
-        @RequestBody @Valid Pagamento pagamento
+        @RequestBody @Valid PagamentoRequestDTO dto
     );
 
     @Operation(summary = "Atualizar status do pagamento", description = "Endpoint para callbacks de gateway ou atualização manual do status financeiro.")

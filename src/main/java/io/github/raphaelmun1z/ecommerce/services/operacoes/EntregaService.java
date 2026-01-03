@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.services.operacoes;
 
+import io.github.raphaelmun1z.ecommerce.dtos.req.operacoes.EntregaRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.EntregaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusEntrega;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
@@ -37,7 +38,7 @@ public class EntregaService {
     }
 
     @Transactional
-    public EntregaResponseDTO criarEntrega(Entrega entrega, String pedidoId) {
+    public EntregaResponseDTO criarEntrega(EntregaRequestDTO dto, String pedidoId) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
             .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado. Id: " + pedidoId));
 
@@ -45,9 +46,13 @@ public class EntregaService {
             throw new IllegalStateException("Este pedido já possui uma entrega associada.");
         }
 
+        Entrega entrega = new Entrega();
+        converterDtoParaEntidade(dto, entrega);
+
         entrega.setPedido(pedido);
         entrega.setStatus(StatusEntrega.PENDENTE);
 
+        // Define estimativa básica se não informada
         if (entrega.getDataEstimadaEntrega() == null && entrega.getPrazoDiasUteis() != null) {
             entrega.setDataEstimadaEntrega(LocalDateTime.now().plusDays(entrega.getPrazoDiasUteis()));
         }
@@ -69,6 +74,7 @@ public class EntregaService {
             entrega.setTransportadora(transportadora);
         }
 
+        // Se o pedido estava pendente, assume que foi enviado ao adicionar rastreio
         if (entrega.getStatus() == StatusEntrega.PENDENTE || entrega.getStatus() == StatusEntrega.EM_SEPARACAO) {
             entrega.setStatus(StatusEntrega.ENVIADO);
             entrega.setDataEnvio(LocalDateTime.now());
@@ -89,6 +95,7 @@ public class EntregaService {
         entrega.setStatus(StatusEntrega.ENTREGUE);
         entrega.setDataEntregaReal(LocalDateTime.now());
 
+        // Atualiza status do pedido pai
         Pedido pedido = entrega.getPedido();
         if (pedido != null) {
             pedido.setStatus(StatusPedido.ENTREGUE);
@@ -111,5 +118,19 @@ public class EntregaService {
     private Entrega buscarEntidadePorId(String id) {
         return entregaRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Entrega não encontrada. Id: " + id));
+    }
+
+    private void converterDtoParaEntidade(EntregaRequestDTO dto, Entrega entity) {
+        entity.setCodigoRastreio(dto.getCodigoRastreio());
+        entity.setTransportadora(dto.getTransportadora());
+        entity.setValorFrete(dto.getValorFrete());
+        entity.setPrazoDiasUteis(dto.getPrazoDiasUteis());
+        entity.setCep(dto.getCep());
+        entity.setLogradouro(dto.getLogradouro());
+        entity.setNumero(dto.getNumero());
+        entity.setComplemento(dto.getComplemento());
+        entity.setBairro(dto.getBairro());
+        entity.setCidade(dto.getCidade());
+        entity.setUf(dto.getUf());
     }
 }

@@ -1,5 +1,6 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs;
 
+import io.github.raphaelmun1z.ecommerce.dtos.req.operacoes.EntregaRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.EntregaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusEntrega;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Entrega;
@@ -45,7 +46,7 @@ public interface EntregaControllerDocs {
     })
     ResponseEntity<EntregaResponseDTO> criarEntrega(
         @Parameter(description = "ID do pedido") @PathVariable String pedidoId,
-        @RequestBody @Valid Entrega entrega
+        @RequestBody @Valid EntregaRequestDTO dto
     );
 
     @Operation(summary = "Atualizar código de rastreio", description = "Define ou atualiza o código de rastreio e transportadora. Move status para ENVIADO se aplicável.")

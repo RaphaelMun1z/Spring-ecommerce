@@ -1,9 +1,9 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes;
 
 import io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs.PagamentoControllerDocs;
+import io.github.raphaelmun1z.ecommerce.dtos.req.operacoes.PagamentoRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.PagamentoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPagamento;
-import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pagamento;
 import io.github.raphaelmun1z.ecommerce.services.operacoes.PagamentoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +31,8 @@ public class PagamentoController implements PagamentoControllerDocs {
 
     @Override
     @PostMapping("/pedido/{pedidoId}")
-    public ResponseEntity<PagamentoResponseDTO> criarPagamento(@PathVariable String pedidoId, @Valid @RequestBody Pagamento pagamento) {
-        PagamentoResponseDTO newObj = service.criarPagamento(pagamento, pedidoId);
+    public ResponseEntity<PagamentoResponseDTO> criarPagamento(@PathVariable String pedidoId, @Valid @RequestBody PagamentoRequestDTO dto) {
+        PagamentoResponseDTO newObj = service.criarPagamento(dto, pedidoId);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
             .buildAndExpand(newObj.getId()).toUri();
         return ResponseEntity.created(uri).body(newObj);
