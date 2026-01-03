@@ -7,6 +7,7 @@ import io.github.raphaelmun1z.ecommerce.repositories.autorizacao.PermissaoReposi
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import java.util.Set;
 
 @Component
 @Slf4j
+@Order(1)
 public class PermissionInitializer implements ApplicationRunner {
 
     private final PermissaoRepository permissaoRepository;

@@ -14,6 +14,7 @@ import io.github.raphaelmun1z.ecommerce.exceptions.models.BusinessException;
 import io.github.raphaelmun1z.ecommerce.repositories.autorizacao.PapelRepository;
 import io.github.raphaelmun1z.ecommerce.repositories.usuario.UsuarioRepository;
 import io.github.raphaelmun1z.ecommerce.security.jwt.JwtTokenProvider;
+import io.github.raphaelmun1z.ecommerce.services.analitico.NotificacaoService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -33,6 +34,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final PapelRepository papelRepository;
+    private final NotificacaoService notificacaoService;
 
     public AuthService(
         AuthenticationManager authenticationManager,
@@ -40,13 +42,15 @@ public class AuthService {
         UsuarioRepository usuarioRepository,
         PasswordEncoder passwordEncoder,
         EmailService emailService,
-        PapelRepository papelRepository) {
+        PapelRepository papelRepository,
+        NotificacaoService notificacaoService) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
         this.papelRepository = papelRepository;
+        this.notificacaoService = notificacaoService;
     }
 
     public TokenDTO signin(AccountCredentialsDTO credentials) {
@@ -77,6 +81,9 @@ public class AuthService {
 
         Cliente novoCliente = new Cliente(dto.nome(), dto.email(), passwordEncoder.encode(dto.senha()), papelPadrao, dto.cpf(), dto.telefone());
         Cliente clienteSalvo = usuarioRepository.save(novoCliente);
+
+        notificacaoService.enviarBoasVindas(clienteSalvo);
+
         return ClienteResponseDTO.fromEntity(clienteSalvo);
     }
 
