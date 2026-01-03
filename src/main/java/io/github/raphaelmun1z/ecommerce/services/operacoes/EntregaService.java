@@ -6,9 +6,9 @@ import io.github.raphaelmun1z.ecommerce.entities.enums.StatusEntrega;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Entrega;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pedido;
+import io.github.raphaelmun1z.ecommerce.exceptions.models.NotFoundException;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.EntregaRepository;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.PedidoRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,14 +33,14 @@ public class EntregaService {
     @Transactional(readOnly = true)
     public EntregaResponseDTO buscarPorPedido(String pedidoId) {
         Entrega entrega = entregaRepository.findByPedidoId(pedidoId)
-            .orElseThrow(() -> new EntityNotFoundException("Entrega não encontrada para o pedido: " + pedidoId));
+            .orElseThrow(() -> new NotFoundException("Entrega não encontrada para o pedido: " + pedidoId));
         return new EntregaResponseDTO(entrega);
     }
 
     @Transactional
     public EntregaResponseDTO criarEntrega(EntregaRequestDTO dto, String pedidoId) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
-            .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado. Id: " + pedidoId));
+            .orElseThrow(() -> new NotFoundException("Pedido não encontrado. Id: " + pedidoId));
 
         if (pedido.getEntrega() != null) {
             throw new IllegalStateException("Este pedido já possui uma entrega associada.");
@@ -117,7 +117,7 @@ public class EntregaService {
 
     private Entrega buscarEntidadePorId(String id) {
         return entregaRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Entrega não encontrada. Id: " + id));
+            .orElseThrow(() -> new NotFoundException("Entrega não encontrada. Id: " + id));
     }
 
     private void converterDtoParaEntidade(EntregaRequestDTO dto, Entrega entity) {

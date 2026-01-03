@@ -20,6 +20,14 @@ public record SignUpRequestDTO(
     @Schema(description = "Senha de acesso (mínimo de 6 caracteres)", example = "senhaForte123")
     @NotBlank(message = "A senha é obrigatória.")
     @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres.")
-    String senha
+    String senha,
+
+    @Schema(description = "CPF do cliente (apenas números)", example = "12345678900")
+    @NotBlank(message = "O CPF é obrigatório.")
+    @Size(min = 11, max = 14, message = "O CPF deve ter entre 11 e 14 caracteres.")
+    String cpf,
+
+    @Schema(description = "Telefone de contato", example = "11999999999")
+    String telefone
 ) {
 }

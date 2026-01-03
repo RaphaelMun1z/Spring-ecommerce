@@ -9,10 +9,10 @@ import io.github.raphaelmun1z.ecommerce.entities.enums.TipoMovimentacao;
 import io.github.raphaelmun1z.ecommerce.entities.estoque.MovimentacaoEstoque;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.ItemPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pedido;
+import io.github.raphaelmun1z.ecommerce.exceptions.models.NotFoundException;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.CarrinhoRepository;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.PedidoRepository;
 import io.github.raphaelmun1z.ecommerce.services.catalogo.EstoqueService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,7 @@ public class PedidoService {
     @Transactional(readOnly = true)
     public PedidoResponseDTO buscarPorId(String id) {
         Pedido pedido = pedidoRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado. Id: " + id));
+            .orElseThrow(() -> new NotFoundException("Pedido não encontrado. Id: " + id));
         return new PedidoResponseDTO(pedido);
     }
 
@@ -59,7 +59,7 @@ public class PedidoService {
     @Transactional
     public PedidoResponseDTO criarPedidoDoCarrinho(String clienteId) {
         Carrinho carrinho = carrinhoRepository.findByClienteId(clienteId)
-            .orElseThrow(() -> new EntityNotFoundException("Carrinho não encontrado para o cliente: " + clienteId));
+            .orElseThrow(() -> new NotFoundException("Carrinho não encontrado para o cliente: " + clienteId));
 
         if (carrinho.getItens().isEmpty()) {
             throw new IllegalStateException("O carrinho está vazio. Não é possível criar um pedido.");
@@ -103,7 +103,7 @@ public class PedidoService {
     @Transactional
     public PedidoResponseDTO atualizarStatus(String id, StatusPedido novoStatus) {
         Pedido pedido = pedidoRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado. Id: " + id));
+            .orElseThrow(() -> new NotFoundException("Pedido não encontrado. Id: " + id));
 
         StatusPedido statusAtual = pedido.getStatus();
 

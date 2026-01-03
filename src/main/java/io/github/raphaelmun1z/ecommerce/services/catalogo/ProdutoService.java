@@ -4,9 +4,9 @@ import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.ProdutoRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.ProdutoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Categoria;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
+import io.github.raphaelmun1z.ecommerce.exceptions.models.NotFoundException;
 import io.github.raphaelmun1z.ecommerce.repositories.catalogo.CategoriaRepository;
 import io.github.raphaelmun1z.ecommerce.repositories.catalogo.ProdutoRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -38,7 +38,7 @@ public class ProdutoService {
     @Transactional(readOnly = true)
     public ProdutoResponseDTO buscarPorId(String id) {
         Produto produto = repository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado. Id: " + id));
+            .orElseThrow(() -> new NotFoundException("Produto não encontrado. Id: " + id));
         return new ProdutoResponseDTO(produto);
     }
 
@@ -59,7 +59,7 @@ public class ProdutoService {
     @Transactional
     public ProdutoResponseDTO atualizar(String id, ProdutoRequestDTO dto) {
         Produto entity = repository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado. Id: " + id));
+            .orElseThrow(() -> new NotFoundException("Produto não encontrado. Id: " + id));
 
         converterDtoParaEntidade(dto, entity);
         validarRegrasDeNegocio(entity);
@@ -71,7 +71,7 @@ public class ProdutoService {
     @Transactional
     public void excluir(String id) {
         if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Produto não encontrado. Id: " + id);
+            throw new NotFoundException("Produto não encontrado. Id: " + id);
         }
         try {
             repository.deleteById(id);
@@ -84,7 +84,7 @@ public class ProdutoService {
     @Transactional
     public void desativar(String id) {
         Produto entity = repository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado. Id: " + id));
+            .orElseThrow(() -> new NotFoundException("Produto não encontrado. Id: " + id));
 
         if (!entity.getAtivo()) throw new IllegalArgumentException("O produto já está desativado.");
 
@@ -95,7 +95,7 @@ public class ProdutoService {
     @Transactional
     public void ativar(String id) {
         Produto entity = repository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado. Id: " + id));
+            .orElseThrow(() -> new NotFoundException("Produto não encontrado. Id: " + id));
 
         if (entity.getAtivo()) throw new IllegalArgumentException("O produto já está ativo.");
 
@@ -116,7 +116,7 @@ public class ProdutoService {
 
         if (dto.getCategoriaId() != null) {
             Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
-                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada. Id: " + dto.getCategoriaId()));
+                .orElseThrow(() -> new NotFoundException("Categoria não encontrada. Id: " + dto.getCategoriaId()));
             entity.setCategoria(categoria);
         } else {
             entity.setCategoria(null);

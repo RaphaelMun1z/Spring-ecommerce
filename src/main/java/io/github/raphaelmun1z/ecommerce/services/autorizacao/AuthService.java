@@ -75,7 +75,7 @@ public class AuthService {
         Papel papelPadrao = papelRepository.findByNome("ROLE_CLIENTE")
             .orElseThrow(() -> new RuntimeException("Erro: Papel ROLE_CLIENTE não existe"));
 
-        Cliente novoCliente = new Cliente(dto.nome(), dto.email(), passwordEncoder.encode(dto.senha()), papelPadrao);
+        Cliente novoCliente = new Cliente(dto.nome(), dto.email(), passwordEncoder.encode(dto.senha()), papelPadrao, dto.cpf(), dto.telefone());
         Cliente clienteSalvo = usuarioRepository.save(novoCliente);
         return ClienteResponseDTO.fromEntity(clienteSalvo);
     }

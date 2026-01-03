@@ -5,9 +5,9 @@ import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.MovimentacaoEstoqueRes
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
 import io.github.raphaelmun1z.ecommerce.entities.enums.TipoMovimentacao;
 import io.github.raphaelmun1z.ecommerce.entities.estoque.MovimentacaoEstoque;
+import io.github.raphaelmun1z.ecommerce.exceptions.models.NotFoundException;
 import io.github.raphaelmun1z.ecommerce.repositories.catalogo.EstoqueRepository;
 import io.github.raphaelmun1z.ecommerce.repositories.catalogo.ProdutoRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class EstoqueService {
     @Transactional(readOnly = true)
     public Page<MovimentacaoEstoqueResponseDTO> buscarHistoricoPorProduto(String produtoId, Pageable pageable) {
         if (!produtoRepository.existsById(produtoId)) {
-            throw new EntityNotFoundException("Produto não encontrado. Id: " + produtoId);
+            throw new NotFoundException("Produto não encontrado. Id: " + produtoId);
         }
         return estoqueRepository.findByProdutoId(produtoId, pageable)
             .map(MovimentacaoEstoqueResponseDTO::new);
@@ -35,7 +35,7 @@ public class EstoqueService {
     @Transactional
     public MovimentacaoEstoqueResponseDTO registrarMovimentacao(MovimentacaoEstoque movimentacao) {
         Produto produto = produtoRepository.findById(movimentacao.getProduto().getId())
-            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado para movimentação."));
+            .orElseThrow(() -> new NotFoundException("Produto não encontrado para movimentação."));
 
         atualizarSaldoProduto(produto, movimentacao.getQuantidade(), movimentacao.getTipo());
 
@@ -50,7 +50,7 @@ public class EstoqueService {
     @Transactional
     public MovimentacaoEstoqueResponseDTO registrarMovimentacaoManual(MovimentacaoEstoqueRequestDTO dto) {
         Produto produto = produtoRepository.findById(dto.getProdutoId())
-            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado. Id: " + dto.getProdutoId()));
+            .orElseThrow(() -> new NotFoundException("Produto não encontrado. Id: " + dto.getProdutoId()));
 
         MovimentacaoEstoque movimentacao = new MovimentacaoEstoque();
         movimentacao.setProduto(produto);

@@ -3,8 +3,8 @@ package io.github.raphaelmun1z.ecommerce.services.catalogo;
 import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.CategoriaRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.CategoriaResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Categoria;
+import io.github.raphaelmun1z.ecommerce.exceptions.models.NotFoundException;
 import io.github.raphaelmun1z.ecommerce.repositories.catalogo.CategoriaRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +32,7 @@ public class CategoriaService {
     @Transactional(readOnly = true)
     public CategoriaResponseDTO findById(String id) {
         Categoria entity = repository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada. Id: " + id));
+            .orElseThrow(() -> new NotFoundException("Categoria não encontrada. Id: " + id));
         return new CategoriaResponseDTO(entity);
     }
 
@@ -58,15 +58,15 @@ public class CategoriaService {
             updateData(entity, dto);
             Categoria savedObj = repository.save(entity);
             return new CategoriaResponseDTO(savedObj);
-        } catch (EntityNotFoundException e) {
-            throw new EntityNotFoundException("Categoria não encontrada para atualização. Id: " + id);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Categoria não encontrada para atualização. Id: " + id);
         }
     }
 
     @Transactional
     public void delete(String id) {
         if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Categoria não encontrada para exclusão. Id: " + id);
+            throw new NotFoundException("Categoria não encontrada para exclusão. Id: " + id);
         }
         try {
             repository.deleteById(id);
@@ -79,7 +79,7 @@ public class CategoriaService {
     @Transactional
     public void desativar(String id) {
         Categoria entity = repository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada. Id: " + id));
+            .orElseThrow(() -> new NotFoundException("Categoria não encontrada. Id: " + id));
         entity.setAtiva(false);
         repository.save(entity);
     }
@@ -87,7 +87,7 @@ public class CategoriaService {
     @Transactional
     public void ativar(String id) {
         Categoria entity = repository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada. Id: " + id));
+            .orElseThrow(() -> new NotFoundException("Categoria não encontrada. Id: " + id));
         entity.setAtiva(true);
         repository.save(entity);
     }
@@ -100,7 +100,7 @@ public class CategoriaService {
 
         if (dto.getCategoriaPaiId() != null) {
             Categoria pai = repository.findById(dto.getCategoriaPaiId())
-                .orElseThrow(() -> new EntityNotFoundException("Categoria Pai não encontrada. Id: " + dto.getCategoriaPaiId()));
+                .orElseThrow(() -> new NotFoundException("Categoria Pai não encontrada. Id: " + dto.getCategoriaPaiId()));
             entity.setCategoriaPai(pai);
         } else {
             entity.setCategoriaPai(null);

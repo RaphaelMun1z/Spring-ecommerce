@@ -6,9 +6,9 @@ import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPagamento;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pagamento;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pedido;
+import io.github.raphaelmun1z.ecommerce.exceptions.models.NotFoundException;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.PagamentoRepository;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.PedidoRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +33,7 @@ public class PagamentoService {
     @Transactional
     public PagamentoResponseDTO criarPagamento(PagamentoRequestDTO dto, String pedidoId) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
-            .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado. Id: " + pedidoId));
+            .orElseThrow(() -> new NotFoundException("Pedido não encontrado. Id: " + pedidoId));
 
         if (pagamentoRepository.existsById(pedidoId)) {
             throw new IllegalStateException("Já existe uma tentativa de pagamento registrada para este pedido.");
@@ -85,7 +85,7 @@ public class PagamentoService {
 
     private Pagamento buscarEntidadePorId(String id) {
         return pagamentoRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Pagamento não encontrado. Id do Pedido: " + id));
+            .orElseThrow(() -> new NotFoundException("Pagamento não encontrado. Id do Pedido: " + id));
     }
 
     private void validarTransicaoStatus(StatusPagamento atual, StatusPagamento novo) {
