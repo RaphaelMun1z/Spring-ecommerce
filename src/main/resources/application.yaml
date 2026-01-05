@@ -17,12 +17,15 @@ security:
     token:
       secret-key: "fjilmpmaKTk4ZpLrsP2ecqFfZpqzP1bY"
       expire-length: 3600000
-  spring-doc:
-    paths-to-match: /api/**
-    swagger-ui:
-      use-root-path: true
+
+spring-doc:
+  paths-to-match: /api/**
+  swagger-ui:
+    use-root-path: true
 
 server:
-  port: 8080
   servlet:
     context-path: /api
+
+cors:
+  originPatterns: ${CORS_ORIGINS:http://localhost:4200}

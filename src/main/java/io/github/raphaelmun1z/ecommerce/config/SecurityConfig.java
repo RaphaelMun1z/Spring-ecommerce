@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -20,13 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -73,41 +70,48 @@ public class SecurityConfig {
         JwtTokenFilter filter = new JwtTokenFilter(tokenProvider, handlerExceptionResolver);
         // @formatter:off
         return http
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement(
-session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authorizeHttpRequests(
-authorizeHttpRequests -> authorizeHttpRequests
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors(org.springframework.security.config.Customizer.withDefaults())
+            .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
+            .sessionManagement(
+                session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authorizeHttpRequests(
+                authorizeHttpRequests -> authorizeHttpRequests
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers(
-                         "/auth/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui.html",
-                        "/swagger-ui/**"
+                        "/auth/**",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**"
                     ).permitAll()
+
+                    // Vitrine Pública (Apenas Leitura)
+                    .requestMatchers(HttpMethod.GET, "/produtos/vitrine", "/produtos/buscar", "/produtos/{id}").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/categorias/ativas", "/categorias/{id}").permitAll()
+
+                    // Rotas de Admin (Gestão e Relatórios)
+                    .requestMatchers("/dashboard/**", "/relatorios/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/produtos", "/categorias").hasRole("ADMIN") // Listar tudo (incluindo inativos)
+                    .requestMatchers(HttpMethod.POST, "/produtos/**", "/categorias/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/produtos/**", "/categorias/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/produtos/**", "/categorias/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PATCH, "/produtos/**", "/categorias/**").hasRole("ADMIN")
+
+                    // Admin - Operações Especiais
+                    .requestMatchers(HttpMethod.GET, "/pedidos").hasRole("ADMIN") // Ver todos os pedidos da loja
+                    .requestMatchers(HttpMethod.PATCH, "/pedidos/{id}/status").hasRole("ADMIN") // Alterar status do pedido
+                    .requestMatchers(HttpMethod.PATCH, "/entregas/**").hasRole("ADMIN") // Atualizar rastreio
+
+                    // Rotas Autenticadas (Cliente ou Admin)
+                    // Inclui: Carrinho, Checkout, Meus Pedidos, Pagamentos, Endereços, Notificações
                     .anyRequest().authenticated()
-                )
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(entryPoint)
-                        .accessDeniedHandler(accessDeniedHandler)
-                )
-                .build();
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(entryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
+            )
+            .build();
         // @formatter:on
-    }
-
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:8080"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }

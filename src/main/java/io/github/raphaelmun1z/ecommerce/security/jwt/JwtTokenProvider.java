@@ -55,7 +55,7 @@ public class JwtTokenProvider {
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toList());
 
-        String accessToken = criarAccessToken(usuario.getEmail(), authorities, agora, validadeAccessToken);
+        String accessToken = criarAccessToken(usuario.getEmail(), usuario.getId(), authorities, agora, validadeAccessToken);
         String refreshToken = criarRefreshToken(usuario.getEmail(), agora, validadeRefreshToken);
 
         return new TokenDTO(usuario.getUsername(), true, agora, validadeAccessToken, accessToken, refreshToken);
@@ -79,7 +79,7 @@ public class JwtTokenProvider {
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toList());
 
-        String novoAccessToken = criarAccessToken(usuario.getEmail(), authorities, agora, validadeAccessToken);
+        String novoAccessToken = criarAccessToken(usuario.getEmail(), usuario.getId(), authorities, agora, validadeAccessToken);
 
         return new TokenDTO(usuario.getUsername(), true, agora, validadeAccessToken, novoAccessToken, token);
     }
@@ -113,12 +113,13 @@ public class JwtTokenProvider {
         return null;
     }
 
-    private String criarAccessToken(String username, List<String> authorities, Date now, Date validity) {
+    private String criarAccessToken(String username, String userId, List<String> authorities, Date now, Date validity) {
         return JWT.create()
+            .withSubject(username)
+            .withClaim("id", userId)
             .withClaim("roles", authorities)
             .withIssuedAt(now)
             .withExpiresAt(validity)
-            .withSubject(username)
             .sign(algorithm);
     }
 

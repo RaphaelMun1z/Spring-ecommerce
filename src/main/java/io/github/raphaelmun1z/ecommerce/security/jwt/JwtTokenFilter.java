@@ -1,13 +1,12 @@
 package io.github.raphaelmun1z.ecommerce.security.jwt;
 
 import io.github.raphaelmun1z.ecommerce.exceptions.models.InvalidJwtAuthenticationException;
-import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
@@ -29,6 +28,7 @@ public class JwtTokenFilter extends GenericFilterBean {
         throws IOException, ServletException {
         try {
             String token = tokenProvider.resolverToken((HttpServletRequest) request);
+
             if (StringUtils.isNotBlank(token) && tokenProvider.validarToken(token)) {
                 Authentication authentication = tokenProvider.obterAutenticacao(token);
 
@@ -36,10 +36,10 @@ public class JwtTokenFilter extends GenericFilterBean {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
-
-            filter.doFilter(request, response);
         } catch (InvalidJwtAuthenticationException e) {
-            resolver.resolveException((HttpServletRequest) request, (HttpServletResponse) response, null, e);
+            SecurityContextHolder.clearContext();
         }
+
+        filter.doFilter(request, response);
     }
 }

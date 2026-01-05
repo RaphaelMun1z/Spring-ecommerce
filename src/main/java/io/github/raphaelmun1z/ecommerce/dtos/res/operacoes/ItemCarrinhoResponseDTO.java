@@ -8,8 +8,11 @@ import java.math.BigDecimal;
 @Schema(description = "DTO responsável por apresentar os dados resumidos de um item dentro do carrinho")
 public class ItemCarrinhoResponseDTO {
 
-    @Schema(description = "Identificador do item no carrinho", example = "550e8400-e29b-41d4-a716-446655440000")
+    @Schema(description = "Identificador do item no carrinho", example = "uuid-item-123")
     private String id;
+
+    @Schema(description = "ID do Produto (necessário para atualizações)", example = "uuid-produto-456")
+    private String produtoId;
 
     @Schema(description = "Nome do produto adicionado", example = "Smartphone Galaxy S23")
     private String nomeProduto;
@@ -17,10 +20,10 @@ public class ItemCarrinhoResponseDTO {
     @Schema(description = "Quantidade do produto", example = "2")
     private Integer quantidade;
 
-    @Schema(description = "Preço unitário do produto no momento da consulta (considera promoções)", example = "4500.00")
+    @Schema(description = "Preço unitário do produto", example = "4500.00")
     private BigDecimal precoUnitario;
 
-    @Schema(description = "Subtotal do item (preço x quantidade)", example = "9000.00")
+    @Schema(description = "Subtotal do item", example = "9000.00")
     private BigDecimal subTotal;
 
     public ItemCarrinhoResponseDTO() {
@@ -32,8 +35,8 @@ public class ItemCarrinhoResponseDTO {
         this.subTotal = item.getSubTotal();
 
         if (item.getProduto() != null) {
+            this.produtoId = item.getProduto().getId();
             this.nomeProduto = item.getProduto().getTitulo();
-
             this.precoUnitario = item.getProduto().getPrecoPromocional() != null
                 ? item.getProduto().getPrecoPromocional()
                 : item.getProduto().getPreco();
@@ -43,12 +46,21 @@ public class ItemCarrinhoResponseDTO {
         }
     }
 
+    // Getters e Setters
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getProdutoId() {
+        return produtoId;
+    }
+
+    public void setProdutoId(String produtoId) {
+        this.produtoId = produtoId;
     }
 
     public String getNomeProduto() {
