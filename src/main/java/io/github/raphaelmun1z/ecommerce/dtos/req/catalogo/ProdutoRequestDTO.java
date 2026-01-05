@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Schema(description = "DTO para criação e atualização de produtos")
 public class ProdutoRequestDTO {
@@ -45,6 +46,9 @@ public class ProdutoRequestDTO {
 
     @Schema(description = "ID da categoria vinculada", example = "550e8400-e29b-41d4-a716-446655440000")
     private String categoriaId;
+
+    @Schema(description = "Lista de URLs das imagens do produto", example = "[\"https://.../img1.jpg\", \"https://.../img2.jpg\"]")
+    private List<String> imagens;
 
     // Getters e Setters
     public String getCodigoControle() {
@@ -125,5 +129,13 @@ public class ProdutoRequestDTO {
 
     public void setCategoriaId(String categoriaId) {
         this.categoriaId = categoriaId;
+    }
+
+    public List<String> getImagens() {
+        return imagens;
+    }
+
+    public void setImagens(List<String> imagens) {
+        this.imagens = imagens;
     }
 }

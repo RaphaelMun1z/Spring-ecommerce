@@ -4,6 +4,7 @@ import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.ProdutoFiltroDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.req.catalogo.ProdutoRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.ProdutoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Categoria;
+import io.github.raphaelmun1z.ecommerce.entities.catalogo.ImagemProduto;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
 import io.github.raphaelmun1z.ecommerce.exceptions.models.NotFoundException;
 import io.github.raphaelmun1z.ecommerce.repositories.catalogo.CategoriaRepository;
@@ -128,6 +129,24 @@ public class ProdutoService {
             entity.setCategoria(categoria);
         } else {
             entity.setCategoria(null);
+        }
+
+        // Lógica de Imagens
+        if (dto.getImagens() != null && !dto.getImagens().isEmpty()) {
+            // Limpa as imagens antigas para substituir pelas novas (no caso de update)
+            entity.getImagens().clear();
+
+            for (int i = 0; i < dto.getImagens().size(); i++) {
+                String url = dto.getImagens().get(i);
+                // A primeira imagem da lista é considerada a principal (capa)
+                boolean isPrincipal = (i == 0);
+
+                // Cria a entidade ImagemProduto vinculada a este Produto
+                ImagemProduto imagem = new ImagemProduto(url, i, isPrincipal, entity);
+
+                // Adiciona à lista do produto
+                entity.getImagens().add(imagem);
+            }
         }
     }
 

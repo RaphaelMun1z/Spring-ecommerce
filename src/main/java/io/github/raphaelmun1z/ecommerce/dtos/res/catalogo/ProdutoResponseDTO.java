@@ -1,9 +1,12 @@
 package io.github.raphaelmun1z.ecommerce.dtos.res.catalogo;
 
+import io.github.raphaelmun1z.ecommerce.entities.catalogo.ImagemProduto;
 import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Schema(description = "DTO de resposta contendo os dados públicos do produto")
 public class ProdutoResponseDTO {
@@ -41,6 +44,9 @@ public class ProdutoResponseDTO {
     @Schema(description = "Dados da categoria vinculada")
     private CategoriaResponseDTO categoria;
 
+    @Schema(description = "Lista de URLs das imagens")
+    private List<String> imagens;
+
     public ProdutoResponseDTO() {
     }
 
@@ -58,6 +64,14 @@ public class ProdutoResponseDTO {
 
         if (entity.getCategoria() != null) {
             this.categoria = new CategoriaResponseDTO(entity.getCategoria());
+        }
+
+        if (entity.getImagens() != null) {
+            // Ordena pela ordem definida e extrai a URL
+            this.imagens = entity.getImagens().stream()
+                .sorted((i1, i2) -> i1.getOrdem().compareTo(i2.getOrdem()))
+                .map(ImagemProduto::getUrl)
+                .collect(Collectors.toList());
         }
     }
 
