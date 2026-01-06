@@ -50,6 +50,9 @@ public abstract class Usuario implements UserDetails, Serializable {
     @Schema(description = "Senha criptografada do usuário", hidden = true)
     private String senha;
 
+    @Schema(description = "Nome do arquivo ou URL da imagem de perfil", example = "a3da80f9-6045-4fcc-94c6-bb83c0a62c9c.jpg")
+    private String avatar;
+
     @Schema(hidden = true)
     private String passwordResetToken;
 

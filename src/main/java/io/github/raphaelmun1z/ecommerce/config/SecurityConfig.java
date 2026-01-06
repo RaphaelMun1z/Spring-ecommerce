@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -29,6 +30,7 @@ import java.util.Map;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 public class SecurityConfig {
     private final JwtTokenProvider tokenProvider;
     private final HandlerExceptionResolver handlerExceptionResolver;
@@ -80,31 +82,30 @@ public class SecurityConfig {
             .authorizeHttpRequests(
                 authorizeHttpRequests -> authorizeHttpRequests
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .requestMatchers(
-                        "/auth/**",
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**"
-                    ).permitAll()
+                    .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
-                    // Vitrine Pública (Apenas Leitura)
+                    // Arquivos: Download deve ser público
+                    .requestMatchers(HttpMethod.GET, "/arquivos/download/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/arquivos/upload").authenticated()
+
+                    // Vitrine Pública
                     .requestMatchers(HttpMethod.GET, "/produtos/vitrine", "/produtos/buscar", "/produtos/{id}").permitAll()
                     .requestMatchers(HttpMethod.GET, "/categorias/ativas", "/categorias/{id}").permitAll()
 
-                    // Rotas de Admin (Gestão e Relatórios)
+                    // Avatar do Cliente
+                    .requestMatchers(HttpMethod.PATCH, "/clientes/{id}/avatar").authenticated()
+
+                    // Rotas de Admin
                     .requestMatchers("/dashboard/**", "/relatorios/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/produtos", "/categorias").hasRole("ADMIN") // Listar tudo (incluindo inativos)
+                    .requestMatchers(HttpMethod.GET, "/clientes").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/produtos", "/categorias").hasRole("ADMIN")
+
+                    // Admin - Escrita
                     .requestMatchers(HttpMethod.POST, "/produtos/**", "/categorias/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/produtos/**", "/categorias/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/produtos/**", "/categorias/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PATCH, "/produtos/**", "/categorias/**").hasRole("ADMIN")
 
-                    // Admin - Operações Especiais
-                    .requestMatchers(HttpMethod.GET, "/pedidos").hasRole("ADMIN") // Ver todos os pedidos da loja
-                    .requestMatchers(HttpMethod.PATCH, "/pedidos/{id}/status").hasRole("ADMIN") // Alterar status do pedido
-                    .requestMatchers(HttpMethod.PATCH, "/entregas/**").hasRole("ADMIN") // Atualizar rastreio
-
-                    // Rotas Autenticadas (Cliente ou Admin)
-                    // Inclui: Carrinho, Checkout, Meus Pedidos, Pagamentos, Endereços, Notificações
                     .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
