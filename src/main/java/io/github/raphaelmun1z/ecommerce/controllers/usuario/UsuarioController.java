@@ -1,8 +1,10 @@
 package io.github.raphaelmun1z.ecommerce.controllers.usuario;
 
+import io.github.raphaelmun1z.ecommerce.dtos.req.usuario.ClienteUpdateRequestDTO;
 import io.github.raphaelmun1z.ecommerce.dtos.res.usuario.UsuarioResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.usuario.Usuario;
 import io.github.raphaelmun1z.ecommerce.services.usuario.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,6 +34,16 @@ public class UsuarioController {
         usuarioService.atualizarFotoPerfil(usuarioLogado.getId(), fileName);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/me")
+    public ResponseEntity<Void> atualizarMeusDados(
+        @AuthenticationPrincipal Usuario usuarioLogado,
+        @RequestBody @Valid ClienteUpdateRequestDTO dto) {
+
+        usuarioService.atualizarDadosCliente(usuarioLogado.getId(), dto);
+        return ResponseEntity.noContent().build();
+    }
+
 
     // --- ENDPOINTS LEGADOS (ADMIN) ---
 

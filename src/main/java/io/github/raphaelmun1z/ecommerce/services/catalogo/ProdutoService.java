@@ -132,19 +132,17 @@ public class ProdutoService {
         }
 
         // Lógica de Imagens
-        if (dto.getImagens() != null && !dto.getImagens().isEmpty()) {
-            // Limpa as imagens antigas para substituir pelas novas (no caso de update)
-            entity.getImagens().clear();
+        if (dto.getImagens() != null) {
+            entity.getImagens().clear(); // Limpa as existentes (orphanRemoval cuida de apagar do banco)
 
             for (int i = 0; i < dto.getImagens().size(); i++) {
                 String url = dto.getImagens().get(i);
-                // A primeira imagem da lista é considerada a principal (capa)
+
+                // Define a primeira da lista como principal
                 boolean isPrincipal = (i == 0);
 
-                // Cria a entidade ImagemProduto vinculada a este Produto
+                // Cria a entidade ImagemProduto usando a string URL vinda do DTO
                 ImagemProduto imagem = new ImagemProduto(url, i, isPrincipal, entity);
-
-                // Adiciona à lista do produto
                 entity.getImagens().add(imagem);
             }
         }

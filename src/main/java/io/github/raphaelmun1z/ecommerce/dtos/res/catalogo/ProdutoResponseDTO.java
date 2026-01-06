@@ -5,6 +5,7 @@ import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,8 +45,8 @@ public class ProdutoResponseDTO {
     @Schema(description = "Dados da categoria vinculada")
     private CategoriaResponseDTO categoria;
 
-    @Schema(description = "Lista de URLs das imagens")
-    private List<String> imagens;
+    @Schema(description = "Lista de objetos de imagem (com ordem e flag principal)")
+    private List<ImagemProdutoResponseDTO> imagens;
 
     public ProdutoResponseDTO() {
     }
@@ -66,13 +67,12 @@ public class ProdutoResponseDTO {
             this.categoria = new CategoriaResponseDTO(entity.getCategoria());
         }
 
-        if (entity.getImagens() != null) {
-            // Ordena pela ordem definida e extrai a URL
+        //if (entity.getImagens() != null) {
             this.imagens = entity.getImagens().stream()
-                .sorted((i1, i2) -> i1.getOrdem().compareTo(i2.getOrdem()))
-                .map(ImagemProduto::getUrl)
+                .sorted(Comparator.comparing(ImagemProduto::getOrdem))
+                .map(ImagemProdutoResponseDTO::new)
                 .collect(Collectors.toList());
-        }
+        //}
     }
 
     // Getters e Setters

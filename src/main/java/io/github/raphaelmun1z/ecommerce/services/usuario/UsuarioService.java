@@ -1,5 +1,7 @@
 package io.github.raphaelmun1z.ecommerce.services.usuario;
 
+import io.github.raphaelmun1z.ecommerce.dtos.req.usuario.ClienteUpdateRequestDTO;
+import io.github.raphaelmun1z.ecommerce.entities.usuario.Cliente;
 import io.github.raphaelmun1z.ecommerce.entities.usuario.Usuario;
 import io.github.raphaelmun1z.ecommerce.repositories.usuario.UsuarioRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,5 +45,18 @@ public class UsuarioService implements UserDetailsService {
         repository.save(usuario);
     }
 
+    @Transactional
+    public void atualizarDadosCliente(String id, ClienteUpdateRequestDTO dto) {
+        Usuario usuario = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        usuario.setNome(dto.nome());
+
+        if (usuario instanceof Cliente cliente) {
+            cliente.setTelefone(dto.telefone());
+        }
+
+        repository.save(usuario);
+    }
 }
 
