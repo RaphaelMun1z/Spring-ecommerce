@@ -5,6 +5,7 @@ import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,100 +68,56 @@ public class ProdutoResponseDTO {
             this.categoria = new CategoriaResponseDTO(entity.getCategoria());
         }
 
-        //if (entity.getImagens() != null) {
+        // Inicializa a lista para evitar null
+        this.imagens = new ArrayList<>();
+
+        if (entity.getImagens() != null && !entity.getImagens().isEmpty()) {
             this.imagens = entity.getImagens().stream()
-                .sorted(Comparator.comparing(ImagemProduto::getOrdem))
+                .sorted(Comparator.comparing(ImagemProduto::getOrdem, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(ImagemProdutoResponseDTO::new)
                 .collect(Collectors.toList());
-        //}
+        }
     }
 
     // Getters e Setters
-    public String getId() {
-        return id;
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    public String getCodigoControle() { return codigoControle; }
+    public void setCodigoControle(String codigoControle) { this.codigoControle = codigoControle; }
+
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
+
+    public BigDecimal getPreco() { return preco; }
+    public void setPreco(BigDecimal preco) { this.preco = preco; }
+
+    public BigDecimal getPrecoPromocional() { return precoPromocional; }
+    public void setPrecoPromocional(BigDecimal precoPromocional) { this.precoPromocional = precoPromocional; }
+
+    public Integer getEstoque() { return estoque; }
+    public void setEstoque(Integer estoque) { this.estoque = estoque; }
+
+    public Boolean getAtivo() { return ativo; }
+    public void setAtivo(Boolean ativo) { this.ativo = ativo; }
+
+    public String getDimensoes() { return dimensoes; }
+    public void setDimensoes(String dimensoes) { this.dimensoes = dimensoes; }
+
+    public Double getPesoKg() { return pesoKg; }
+    public void setPesoKg(Double pesoKg) { this.pesoKg = pesoKg; }
+
+    public CategoriaResponseDTO getCategoria() { return categoria; }
+    public void setCategoria(CategoriaResponseDTO categoria) { this.categoria = categoria; }
+
+    public List<ImagemProdutoResponseDTO> getImagens() {
+        return imagens;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getCodigoControle() {
-        return codigoControle;
-    }
-
-    public void setCodigoControle(String codigoControle) {
-        this.codigoControle = codigoControle;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public BigDecimal getPreco() {
-        return preco;
-    }
-
-    public void setPreco(BigDecimal preco) {
-        this.preco = preco;
-    }
-
-    public BigDecimal getPrecoPromocional() {
-        return precoPromocional;
-    }
-
-    public void setPrecoPromocional(BigDecimal precoPromocional) {
-        this.precoPromocional = precoPromocional;
-    }
-
-    public Integer getEstoque() {
-        return estoque;
-    }
-
-    public void setEstoque(Integer estoque) {
-        this.estoque = estoque;
-    }
-
-    public Boolean getAtivo() {
-        return ativo;
-    }
-
-    public void setAtivo(Boolean ativo) {
-        this.ativo = ativo;
-    }
-
-    public String getDimensoes() {
-        return dimensoes;
-    }
-
-    public void setDimensoes(String dimensoes) {
-        this.dimensoes = dimensoes;
-    }
-
-    public Double getPesoKg() {
-        return pesoKg;
-    }
-
-    public void setPesoKg(Double pesoKg) {
-        this.pesoKg = pesoKg;
-    }
-
-    public CategoriaResponseDTO getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(CategoriaResponseDTO categoria) {
-        this.categoria = categoria;
+    public void setImagens(List<ImagemProdutoResponseDTO> imagens) {
+        this.imagens = imagens;
     }
 }
