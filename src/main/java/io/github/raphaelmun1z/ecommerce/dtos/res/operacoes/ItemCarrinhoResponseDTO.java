@@ -1,9 +1,15 @@
 package io.github.raphaelmun1z.ecommerce.dtos.res.operacoes;
 
+import io.github.raphaelmun1z.ecommerce.dtos.res.catalogo.ImagemProdutoResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.carrinho.ItemCarrinho;
+import io.github.raphaelmun1z.ecommerce.entities.catalogo.ImagemProduto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Schema(description = "DTO responsável por apresentar os dados resumidos de um item dentro do carrinho")
 public class ItemCarrinhoResponseDTO {
@@ -26,6 +32,9 @@ public class ItemCarrinhoResponseDTO {
     @Schema(description = "Subtotal do item", example = "9000.00")
     private BigDecimal subTotal;
 
+    @Schema(description = "Lista de objetos de imagem (com ordem e flag principal)")
+    private List<ImagemProdutoResponseDTO> imagens;
+
     public ItemCarrinhoResponseDTO() {
     }
 
@@ -43,6 +52,16 @@ public class ItemCarrinhoResponseDTO {
         } else {
             this.nomeProduto = "Produto Indisponível";
             this.precoUnitario = BigDecimal.ZERO;
+        }
+
+        // Inicializa a lista para evitar null
+        this.imagens = new ArrayList<>();
+
+        if (item.getProduto().getImagens() != null && !item.getProduto().getImagens().isEmpty()) {
+            this.imagens = item.getProduto().getImagens().stream()
+                    .sorted(Comparator.comparing(ImagemProduto::getOrdem, Comparator.nullsLast(Comparator.naturalOrder())))
+                    .map(ImagemProdutoResponseDTO::new)
+                    .collect(Collectors.toList());
         }
     }
 
@@ -93,5 +112,13 @@ public class ItemCarrinhoResponseDTO {
 
     public void setSubTotal(BigDecimal subTotal) {
         this.subTotal = subTotal;
+    }
+
+    public List<ImagemProdutoResponseDTO> getImagens() {
+        return imagens;
+    }
+
+    public void setImagens(List<ImagemProdutoResponseDTO> imagens) {
+        this.imagens = imagens;
     }
 }
