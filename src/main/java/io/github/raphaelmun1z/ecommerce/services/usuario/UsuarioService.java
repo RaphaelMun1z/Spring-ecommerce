@@ -1,9 +1,12 @@
 package io.github.raphaelmun1z.ecommerce.services.usuario;
 
 import io.github.raphaelmun1z.ecommerce.dtos.req.usuario.ClienteUpdateRequestDTO;
+import io.github.raphaelmun1z.ecommerce.dtos.res.usuario.UsuarioResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.usuario.Cliente;
 import io.github.raphaelmun1z.ecommerce.entities.usuario.Usuario;
 import io.github.raphaelmun1z.ecommerce.repositories.usuario.UsuarioRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +19,23 @@ public class UsuarioService implements UserDetailsService {
 
     public UsuarioService(UsuarioRepository repository) {
         this.repository = repository;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UsuarioResponseDTO> listarTodos(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(UsuarioResponseDTO::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UsuarioResponseDTO> buscarPorTermo(String termo, Pageable pageable) {
+        if (termo == null || termo.trim().isEmpty()) {
+            return repository.findAll(pageable)
+                    .map(UsuarioResponseDTO::new);
+        }
+
+        return repository.buscarPorNomeOuEmail(termo, pageable)
+                .map(UsuarioResponseDTO::new);
     }
 
     @Override

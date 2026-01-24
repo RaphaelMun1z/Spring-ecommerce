@@ -19,7 +19,7 @@ security:
       expire-length: 3600000
 
 spring-doc:
-  paths-to-match: /api/**
+  paths-to-match: /**
   swagger-ui:
     use-root-path: true
 

@@ -5,6 +5,9 @@ import io.github.raphaelmun1z.ecommerce.dtos.res.usuario.UsuarioResponseDTO;
 import io.github.raphaelmun1z.ecommerce.entities.usuario.Usuario;
 import io.github.raphaelmun1z.ecommerce.services.usuario.UsuarioService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +21,14 @@ public class UsuarioController {
 
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<UsuarioResponseDTO>> listarTodos(
+            @RequestParam(required = false, defaultValue = "") String termo,
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+        Page<UsuarioResponseDTO> pagina = usuarioService.buscarPorTermo(termo, pageable);
+        return ResponseEntity.ok(pagina);
     }
 
     @GetMapping("/me")
