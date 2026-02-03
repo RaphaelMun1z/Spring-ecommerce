@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 
 @RestController
@@ -44,10 +45,15 @@ public class PedidoController implements PedidoControllerDocs {
 
     @Override
     @PostMapping("/checkout/{clienteId}")
-    public ResponseEntity<PedidoResponseDTO> criarPedidoDoCarrinho(@PathVariable String clienteId) {
-        PedidoResponseDTO newObj = service.criarPedidoDoCarrinho(clienteId);
+    public ResponseEntity<PedidoResponseDTO> criarPedidoDoCarrinho(
+            @PathVariable String clienteId,
+            @RequestParam BigDecimal valorFrete,
+            @RequestParam String enderecoId
+    ) {
+        PedidoResponseDTO newObj = service.criarPedidoDoCarrinho(clienteId, valorFrete, enderecoId);
+
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-            .buildAndExpand(newObj.getId()).toUri();
+                .buildAndExpand(newObj.getId()).toUri();
         return ResponseEntity.created(uri).body(newObj);
     }
 

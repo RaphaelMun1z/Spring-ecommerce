@@ -7,8 +7,11 @@ import io.github.raphaelmun1z.ecommerce.entities.catalogo.Produto;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.github.raphaelmun1z.ecommerce.entities.enums.TipoMovimentacao;
 import io.github.raphaelmun1z.ecommerce.entities.estoque.MovimentacaoEstoque;
+import io.github.raphaelmun1z.ecommerce.entities.pedidos.Entrega;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.ItemPedido;
 import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pedido;
+import io.github.raphaelmun1z.ecommerce.entities.usuario.Cliente;
+import io.github.raphaelmun1z.ecommerce.entities.usuario.Endereco;
 import io.github.raphaelmun1z.ecommerce.exceptions.models.NotFoundException;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.CarrinhoRepository;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.PedidoRepository;
@@ -57,16 +60,39 @@ public class PedidoService {
     }
 
     @Transactional
-    public PedidoResponseDTO criarPedidoDoCarrinho(String clienteId) {
+    public PedidoResponseDTO criarPedidoDoCarrinho(String clienteId, BigDecimal valorFrete, String enderecoId) {
         Carrinho carrinho = carrinhoRepository.findByClienteId(clienteId)
-            .orElseThrow(() -> new NotFoundException("Carrinho não encontrado para o cliente: " + clienteId));
+                .orElseThrow(() -> new NotFoundException("Carrinho não encontrado para o cliente: " + clienteId));
 
         if (carrinho.getItens().isEmpty()) {
             throw new IllegalStateException("O carrinho está vazio. Não é possível criar um pedido.");
         }
 
-        Pedido pedido = new Pedido(carrinho.getCliente());
+        Cliente cliente = carrinho.getCliente();
+
+        Endereco enderecoSelecionado = cliente.getEnderecos().stream()
+                .filter(e -> e.getId().equals(enderecoId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Endereço de entrega não encontrado ou não pertence ao cliente."));
+
+        Pedido pedido = new Pedido(cliente);
         pedido.setStatus(StatusPedido.AGUARDANDO_PAGAMENTO);
+
+        Entrega entrega = new Entrega();
+        entrega.setValorFrete(valorFrete != null ? valorFrete : BigDecimal.ZERO);
+
+        entrega.setCep(enderecoSelecionado.getCep());
+        entrega.setLogradouro(enderecoSelecionado.getLogradouro());
+        entrega.setNumero(enderecoSelecionado.getNumero());
+        entrega.setComplemento(enderecoSelecionado.getComplemento());
+        entrega.setBairro(enderecoSelecionado.getBairro());
+        entrega.setCidade(enderecoSelecionado.getCidade());
+        entrega.setUf(enderecoSelecionado.getUf());
+
+        entrega.setPrazoDiasUteis(7);
+        entrega.setTransportadora("Padrão");
+
+        pedido.setEntrega(entrega);
 
         for (ItemCarrinho itemCarrinho : carrinho.getItens()) {
             Produto produto = itemCarrinho.getProduto();
@@ -76,17 +102,17 @@ public class PedidoService {
             }
 
             BigDecimal precoSnapshot = produto.getPrecoPromocional() != null
-                ? produto.getPrecoPromocional()
-                : produto.getPreco();
+                    ? produto.getPrecoPromocional()
+                    : produto.getPreco();
 
             ItemPedido itemPedido = new ItemPedido(pedido, produto, itemCarrinho.getQuantidade(), precoSnapshot);
             pedido.adicionarItem(itemPedido);
 
             MovimentacaoEstoque mov = new MovimentacaoEstoque(
-                produto,
-                itemCarrinho.getQuantidade(),
-                TipoMovimentacao.SAIDA,
-                "Venda Checkout - Cliente: " + clienteId
+                    produto,
+                    itemCarrinho.getQuantidade(),
+                    TipoMovimentacao.SAIDA,
+                    "Venda Checkout - Cliente: " + clienteId
             );
             estoqueService.registrarMovimentacao(mov);
         }

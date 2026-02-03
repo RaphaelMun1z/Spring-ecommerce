@@ -2,10 +2,7 @@ package io.github.raphaelmun1z.ecommerce.entities.usuario;
 
 import io.github.raphaelmun1z.ecommerce.entities.autorizacao.Papel;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -31,6 +30,10 @@ public class Cliente extends Usuario implements Serializable {
     @Column(length = 20)
     @Schema(description = "Telefone de contato", example = "11999999999")
     private String telefone;
+
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Schema(description = "Lista de endereços cadastrados pelo cliente")
+    private List<Endereco> enderecos = new ArrayList<>();
 
     public Cliente(String nome, String email, String senha, Papel papel, String cpf, String telefone) {
         super(nome, email, senha, papel);

@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
+
 @Tag(name = "Pedidos", description = "Endpoints para gestão de pedidos, checkout e histórico de compras")
 public interface PedidoControllerDocs {
 
@@ -40,12 +42,14 @@ public interface PedidoControllerDocs {
 
     @Operation(summary = "Finalizar compra (Checkout)", description = "Transforma o carrinho atual do cliente em um novo pedido, calculando totais e baixando estoque.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso", content = @Content(schema = @Schema(implementation = PedidoResponseDTO.class))),
-        @ApiResponse(responseCode = "400", description = "Erro de validação (estoque insuficiente, carrinho vazio, etc.)", content = @Content),
-        @ApiResponse(responseCode = "404", description = "Cliente ou Carrinho não encontrado", content = @Content)
+            @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso", content = @Content(schema = @Schema(implementation = PedidoResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Erro de validação (estoque insuficiente, carrinho vazio, etc.)", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Cliente ou Carrinho não encontrado", content = @Content)
     })
     ResponseEntity<PedidoResponseDTO> criarPedidoDoCarrinho(
-        @Parameter(description = "ID do cliente") @PathVariable String clienteId
+            @Parameter(description = "ID do cliente") @PathVariable String clienteId,
+            @Parameter(description = "Valor do frete calculado no frontend") @RequestParam BigDecimal valorFrete,
+            @Parameter(description = "ID do endereço de entrega selecionado") @RequestParam String enderecoId
     );
 
     @Operation(summary = "Atualizar status do pedido", description = "Altera o status do ciclo de vida do pedido (ex: ENVIADO, ENTREGUE).")
