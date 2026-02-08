@@ -1,6 +1,7 @@
 package io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs;
 
 import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.PedidoResponseDTO;
+import io.github.raphaelmun1z.ecommerce.entities.enums.MetodoPagamento;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,7 +41,7 @@ public interface PedidoControllerDocs {
     @ApiResponse(responseCode = "200", description = "Lista recuperada com sucesso")
     ResponseEntity<Page<PedidoResponseDTO>> listarTodos(@Parameter(hidden = true) Pageable pageable);
 
-    @Operation(summary = "Finalizar compra (Checkout)", description = "Transforma o carrinho atual do cliente em um novo pedido, calculando totais e baixando estoque.")
+    @Operation(summary = "Finalizar compra (Checkout)", description = "Transforma o carrinho atual do cliente em um novo pedido, calcula totais, baixa estoque e gera a cobrança na AbacatePay.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso", content = @Content(schema = @Schema(implementation = PedidoResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Erro de validação (estoque insuficiente, carrinho vazio, etc.)", content = @Content),
@@ -49,7 +50,8 @@ public interface PedidoControllerDocs {
     ResponseEntity<PedidoResponseDTO> criarPedidoDoCarrinho(
             @Parameter(description = "ID do cliente") @PathVariable String clienteId,
             @Parameter(description = "Valor do frete calculado no frontend") @RequestParam BigDecimal valorFrete,
-            @Parameter(description = "ID do endereço de entrega selecionado") @RequestParam String enderecoId
+            @Parameter(description = "ID do endereço de entrega selecionado") @RequestParam String enderecoId,
+            @Parameter(description = "Método de pagamento escolhido (PIX, BOLETO, CARTAO_CREDITO)") @RequestParam MetodoPagamento metodoPagamento
     );
 
     @Operation(summary = "Atualizar status do pedido", description = "Altera o status do ciclo de vida do pedido (ex: ENVIADO, ENTREGUE).")

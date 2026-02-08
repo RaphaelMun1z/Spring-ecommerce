@@ -9,6 +9,8 @@ import io.github.raphaelmun1z.ecommerce.entities.pedidos.Pedido;
 import io.github.raphaelmun1z.ecommerce.exceptions.models.NotFoundException;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.PagamentoRepository;
 import io.github.raphaelmun1z.ecommerce.repositories.operacoes.PedidoRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,8 @@ import java.time.LocalDateTime;
 
 @Service
 public class PagamentoService {
+    private static final Logger log = LoggerFactory.getLogger(PagamentoService.class);
+
     private final PagamentoRepository pagamentoRepository;
     private final PedidoRepository pedidoRepository;
 
@@ -26,92 +30,58 @@ public class PagamentoService {
 
     @Transactional(readOnly = true)
     public PagamentoResponseDTO buscarPorId(String id) {
-        Pagamento pagamento = buscarEntidadePorId(id);
+        Pagamento pagamento = pagamentoRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Pagamento não encontrado. Id: " + id));
         return new PagamentoResponseDTO(pagamento);
     }
 
     @Transactional
-    public PagamentoResponseDTO criarPagamento(PagamentoRequestDTO dto, String pedidoId) {
-        Pedido pedido = pedidoRepository.findById(pedidoId)
-            .orElseThrow(() -> new NotFoundException("Pedido não encontrado. Id: " + pedidoId));
+    public void processarConfirmacaoPagamento(String billingId) {
+        Pagamento pagamento = pagamentoRepository.findByBillingId(billingId)
+                .orElseThrow(() -> new NotFoundException("Pagamento não encontrado para o billingId: " + billingId));
 
-        if (pagamentoRepository.existsById(pedidoId)) {
-            throw new IllegalStateException("Já existe uma tentativa de pagamento registrada para este pedido.");
+        if (pagamento.getStatus() == StatusPagamento.APROVADO) {
+            log.info("Webhook ignorado: Pagamento já aprovado. BillingId: {}", billingId);
+            return;
         }
 
-        if (pedido.getStatus() != StatusPedido.AGUARDANDO_PAGAMENTO) {
-            throw new IllegalStateException("Não é possível pagar um pedido que não está aguardando pagamento. Status atual: " + pedido.getStatus());
-        }
+        log.info("Processando aprovação de pagamento. BillingId: {}", billingId);
 
-        if (dto.getValor().compareTo(pedido.getValorTotal()) != 0) {
-            throw new IllegalArgumentException("O valor do pagamento (" + dto.getValor() +
-                ") diverge do total do pedido (" + pedido.getValorTotal() + ").");
-        }
+        pagamento.setStatus(StatusPagamento.APROVADO);
+        pagamento.setDataConfirmacao(LocalDateTime.now());
 
-        Pagamento pagamento = new Pagamento();
-        pagamento.setPedido(pedido);
-        pagamento.setMetodo(dto.getMetodo());
-        pagamento.setValor(dto.getValor());
-        pagamento.setNumeroParcelas(dto.getNumeroParcelas() != null ? dto.getNumeroParcelas() : 1);
-        pagamento.setStatus(StatusPagamento.PENDENTE);
-        pagamento.setDataPagamento(LocalDateTime.now());
+        atualizarStatusPedido(pagamento.getPedido(), StatusPedido.PAGO);
 
-        Pagamento pagamentoSalvo = pagamentoRepository.save(pagamento);
-        return new PagamentoResponseDTO(pagamentoSalvo);
+        pagamentoRepository.save(pagamento);
     }
 
     @Transactional
-    public PagamentoResponseDTO atualizarStatus(String id, StatusPagamento novoStatus, String codigoGateway) {
-        Pagamento pagamento = buscarEntidadePorId(id);
-        StatusPagamento statusAtual = pagamento.getStatus();
+    public void processarCancelamentoPagamento(String billingId) {
+        Pagamento pagamento = pagamentoRepository.findByBillingId(billingId)
+                .orElseThrow(() -> new NotFoundException("Pagamento não encontrado para o billingId: " + billingId));
 
-        if (statusAtual == novoStatus) {
-            return new PagamentoResponseDTO(pagamento);
+        if (pagamento.getStatus() == StatusPagamento.CANCELADO || pagamento.getStatus() == StatusPagamento.RECUSADO) {
+            return;
         }
 
-        validarTransicaoStatus(statusAtual, novoStatus);
+        log.info("Processando cancelamento de pagamento. BillingId: {}", billingId);
 
-        pagamento.setStatus(novoStatus);
-        if (codigoGateway != null && !codigoGateway.isBlank()) {
-            pagamento.setCodigoTransacaoGateway(codigoGateway);
-        }
+        pagamento.setStatus(StatusPagamento.CANCELADO);
 
-        Pagamento pagamentoSalvo = pagamentoRepository.save(pagamento);
+        atualizarStatusPedido(pagamento.getPedido(), StatusPedido.CANCELADO);
 
-        sincronizarStatusPedido(pagamentoSalvo.getPedido(), novoStatus);
-
-        return new PagamentoResponseDTO(pagamentoSalvo);
+        pagamentoRepository.save(pagamento);
     }
 
-    private Pagamento buscarEntidadePorId(String id) {
-        return pagamentoRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Pagamento não encontrado. Id do Pedido: " + id));
-    }
-
-    private void validarTransicaoStatus(StatusPagamento atual, StatusPagamento novo) {
-        if (atual == StatusPagamento.APROVADO || atual == StatusPagamento.ESTORNADO) {
-            if (atual == StatusPagamento.APROVADO && novo == StatusPagamento.ESTORNADO) {
-                return;
-            }
-            throw new IllegalStateException("Não é possível alterar um pagamento finalizado (" + atual + ").");
-        }
-
-        if ((atual == StatusPagamento.CANCELADO || atual == StatusPagamento.RECUSADO) && novo == StatusPagamento.APROVADO) {
-            throw new IllegalStateException("Pagamentos recusados ou cancelados não podem ser aprovados posteriormente. Gere uma nova transação.");
-        }
-    }
-
-    private void sincronizarStatusPedido(Pedido pedido, StatusPagamento statusPagamento) {
+    private void atualizarStatusPedido(Pedido pedido, StatusPedido novoStatus) {
         if (pedido == null) return;
 
-        if (statusPagamento == StatusPagamento.APROVADO) {
-            if (pedido.getStatus() == StatusPedido.AGUARDANDO_PAGAMENTO) {
-                pedido.setStatus(StatusPedido.PAGO);
-            }
-        } else if (statusPagamento == StatusPagamento.ESTORNADO) {
-            pedido.setStatus(StatusPedido.CANCELADO);
+        if (pedido.getStatus() == StatusPedido.ENVIADO || pedido.getStatus() == StatusPedido.ENTREGUE) {
+            log.warn("Tentativa de alterar status de pedido já enviado. PedidoId: {}", pedido.getId());
+            return;
         }
 
+        pedido.setStatus(novoStatus);
         pedidoRepository.save(pedido);
     }
 }

@@ -68,12 +68,20 @@ public class UsuarioService implements UserDetailsService {
     @Transactional
     public void atualizarDadosCliente(String id, ClienteUpdateRequestDTO dto) {
         Usuario usuario = repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        usuario.setNome(dto.nome());
+        if (dto.nome() != null && !dto.nome().isBlank()) {
+            usuario.setNome(dto.nome());
+        }
 
         if (usuario instanceof Cliente cliente) {
-            cliente.setTelefone(dto.telefone());
+            if (dto.telefone() != null && !dto.telefone().isBlank()) {
+                cliente.setTelefone(dto.telefone());
+            }
+
+            if (dto.cpf() != null && !dto.cpf().isBlank()) {
+                cliente.setCpf(dto.cpf());
+            }
         }
 
         repository.save(usuario);

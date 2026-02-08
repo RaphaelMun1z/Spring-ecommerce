@@ -19,10 +19,18 @@ public class Pagamento {
     @Schema(description = "Identificador único do pagamento (corresponde ao ID do pedido)", example = "550e8400-e29b-41d4-a716-446655440000")
     private String id;
 
-    @NotNull
-    @Column(nullable = false)
-    @Schema(description = "Data e hora do processamento do pagamento")
-    private LocalDateTime dataPagamento = LocalDateTime.now();
+    @Column(name = "gateway", length = 30, nullable = false)
+    private String gateway;
+
+    @Column(name = "billing_id", length = 100, unique = true)
+    private String billingId;
+
+    @Column(name = "url_pagamento", length = 2048)
+    @Schema(description = "URL para redirecionamento ao gateway de pagamento", example = "https://abacatepay.com/pay/...")
+    private String urlPagamento;
+
+    @Column(name = "data_confirmacao")
+    private LocalDateTime dataConfirmacao;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -59,11 +67,18 @@ public class Pagamento {
     public Pagamento() {
     }
 
-    public Pagamento(Pedido pedido, MetodoPagamento metodo, BigDecimal valor, Integer numeroParcelas) {
-        this.pedido = pedido;
+    public Pagamento(String id, String gateway, String billingId, String urlPagamento, LocalDateTime dataConfirmacao, StatusPagamento status, MetodoPagamento metodo, BigDecimal valor, Integer numeroParcelas, String codigoTransacaoGateway, Pedido pedido) {
+        this.id = id;
+        this.gateway = gateway;
+        this.billingId = billingId;
+        this.urlPagamento = urlPagamento;
+        this.dataConfirmacao = dataConfirmacao;
+        this.status = status;
         this.metodo = metodo;
         this.valor = valor;
         this.numeroParcelas = numeroParcelas;
+        this.codigoTransacaoGateway = codigoTransacaoGateway;
+        this.pedido = pedido;
     }
 
     public String getId() {
@@ -74,12 +89,36 @@ public class Pagamento {
         this.id = id;
     }
 
-    public LocalDateTime getDataPagamento() {
-        return dataPagamento;
+    public String getGateway() {
+        return gateway;
     }
 
-    public void setDataPagamento(LocalDateTime dataPagamento) {
-        this.dataPagamento = dataPagamento;
+    public void setGateway(String gateway) {
+        this.gateway = gateway;
+    }
+
+    public String getBillingId() {
+        return billingId;
+    }
+
+    public void setBillingId(String billingId) {
+        this.billingId = billingId;
+    }
+
+    public String getUrlPagamento() {
+        return urlPagamento;
+    }
+
+    public void setUrlPagamento(String urlPagamento) {
+        this.urlPagamento = urlPagamento;
+    }
+
+    public LocalDateTime getDataConfirmacao() {
+        return dataConfirmacao;
+    }
+
+    public void setDataConfirmacao(LocalDateTime dataConfirmacao) {
+        this.dataConfirmacao = dataConfirmacao;
     }
 
     public StatusPagamento getStatus() {

@@ -19,4 +19,6 @@ logging:
     #root: TRACE
     #org.hibernate.SQL: DEBUG
     #org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-
+abacatepay:
+  api:
+    key: abc_dev_Ze2g1uDdhQpdhkp1DbaNX0yS

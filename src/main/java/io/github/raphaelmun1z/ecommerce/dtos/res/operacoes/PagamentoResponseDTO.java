@@ -32,6 +32,12 @@ public class PagamentoResponseDTO {
     @Schema(description = "Código da transação no gateway", example = "txn_1234567890")
     private String codigoTransacaoGateway;
 
+    @Schema(description = "URL para pagamento (Pix/Boleto)", example = "https://abacatepay.com/pay/...")
+    private String urlPagamento;
+
+    @Schema(description = "ID do faturamento no gateway (Billing ID)", example = "bill_xyz123")
+    private String billingId;
+
     @Schema(description = "ID do pedido associado", example = "550e8400-e29b-41d4-a716-446655440000")
     private String pedidoId;
 
@@ -40,16 +46,17 @@ public class PagamentoResponseDTO {
 
     public PagamentoResponseDTO(Pagamento pagamento) {
         this.id = pagamento.getId();
-        this.dataPagamento = pagamento.getDataPagamento();
+        this.dataPagamento = pagamento.getDataConfirmacao();
         this.status = pagamento.getStatus();
         this.metodo = pagamento.getMetodo();
         this.valor = pagamento.getValor();
         this.numeroParcelas = pagamento.getNumeroParcelas();
         this.codigoTransacaoGateway = pagamento.getCodigoTransacaoGateway();
+        this.urlPagamento = pagamento.getUrlPagamento();
+        this.billingId = pagamento.getBillingId();
         this.pedidoId = pagamento.getPedido() != null ? pagamento.getPedido().getId() : null;
     }
 
-    // Getters e Setters
     public String getId() {
         return id;
     }
@@ -104,6 +111,22 @@ public class PagamentoResponseDTO {
 
     public void setCodigoTransacaoGateway(String codigoTransacaoGateway) {
         this.codigoTransacaoGateway = codigoTransacaoGateway;
+    }
+
+    public String getUrlPagamento() {
+        return urlPagamento;
+    }
+
+    public void setUrlPagamento(String urlPagamento) {
+        this.urlPagamento = urlPagamento;
+    }
+
+    public String getBillingId() {
+        return billingId;
+    }
+
+    public void setBillingId(String billingId) {
+        this.billingId = billingId;
     }
 
     public String getPedidoId() {

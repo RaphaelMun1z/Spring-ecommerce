@@ -2,6 +2,7 @@ package io.github.raphaelmun1z.ecommerce.controllers.operacoes;
 
 import io.github.raphaelmun1z.ecommerce.controllers.operacoes.docs.PedidoControllerDocs;
 import io.github.raphaelmun1z.ecommerce.dtos.res.operacoes.PedidoResponseDTO;
+import io.github.raphaelmun1z.ecommerce.entities.enums.MetodoPagamento;
 import io.github.raphaelmun1z.ecommerce.entities.enums.StatusPedido;
 import io.github.raphaelmun1z.ecommerce.services.operacoes.PedidoService;
 import org.springframework.data.domain.Page;
@@ -48,9 +49,10 @@ public class PedidoController implements PedidoControllerDocs {
     public ResponseEntity<PedidoResponseDTO> criarPedidoDoCarrinho(
             @PathVariable String clienteId,
             @RequestParam BigDecimal valorFrete,
-            @RequestParam String enderecoId
+            @RequestParam String enderecoId,
+            @RequestParam MetodoPagamento metodoPagamento
     ) {
-        PedidoResponseDTO newObj = service.criarPedidoDoCarrinho(clienteId, valorFrete, enderecoId);
+        PedidoResponseDTO newObj = service.criarPedidoDoCarrinho(clienteId, valorFrete, enderecoId, metodoPagamento);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(newObj.getId()).toUri();
