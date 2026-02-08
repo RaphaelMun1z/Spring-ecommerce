@@ -81,6 +81,7 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(
                 authorizeHttpRequests -> authorizeHttpRequests
+                        .requestMatchers(HttpMethod.POST, "/webhooks/**").permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 

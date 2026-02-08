@@ -21,38 +21,47 @@ public class AbacatePayWebhookController {
             @RequestBody Map<String, Object> payload,
             @RequestHeader(value = "abacatepay-signature", required = false) String signature
     ) {
-        String event = (String) payload.get("event");
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> data = (Map<String, Object>) payload.get("data");
-
-        if (event == null || data == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        String billingId = (String) data.getOrDefault("id", data.get("_id"));
-
-        if (billingId == null) {
-            System.err.println("Webhook ignorado: Billing ID não encontrado.");
-            return ResponseEntity.badRequest().build();
-        }
-
         try {
+            System.out.println(">>> WEBHOOK RECEBIDO: " + payload);
+
+            String event = (String) payload.get("event");
+            Map<String, Object> data = (Map<String, Object>) payload.get("data");
+
+            if (event == null || data == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            Map<String, Object> billing = (Map<String, Object>) data.get("billing");
+
+            if (billing == null) {
+                billing = data;
+            }
+
+            String billingId = (String) billing.getOrDefault("id", billing.get("_id"));
+
+            if (billingId == null) {
+                System.err.println("Webhook ignorado: Billing ID não encontrado no JSON.");
+                return ResponseEntity.badRequest().build();
+            }
+
             switch (event) {
                 case "billing.paid" -> {
+                    System.out.println("Caiu no paid");
                     pedidoService.confirmarPagamento(billingId, billingId);
                 }
 
                 case "billing.failed", "billing.refunded" -> {
+                    System.out.println("Caiu no failed ou refunded");
                     pedidoService.cancelarPagamento(billingId);
                 }
 
                 default -> System.out.println("Evento de Webhook ignorado: " + event);
             }
+
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
-
-        return ResponseEntity.ok().build();
     }
 }

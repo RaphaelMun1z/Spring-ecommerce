@@ -43,11 +43,11 @@ public class PedidoService {
     private final EstoqueService estoqueService;
     private final AbacatePayService abacatePayService;
 
-    @Value("${app.url.sucesso:http://localhost:4200/sucesso}")
+    @Value("${app.url.sucesso:http://localhost:4200/pedido/sucesso}")
     private String urlSucesso;
 
-    @Value("${app.url.conclusao:http://localhost:4200/meus-pedidos}")
-    private String urlConclusao;
+    @Value("${app.url.falha:http://localhost:4200/pedido/falhou}")
+    private String urlFalha;
 
     public PedidoService(PedidoRepository pedidoRepository,
                          CarrinhoRepository carrinhoRepository,
@@ -121,10 +121,8 @@ public class PedidoService {
         pagamento.setValor(pedido.getValorTotal());
         pagamento.setNumeroParcelas(1);
         pagamento.setPedido(pedido);
-
         pagamento.setBillingId(dadosPagamentoExterno.data().id());
         pagamento.setUrlPagamento(dadosPagamentoExterno.data().url());
-
         pedido.setPagamento(pagamento);
 
         // 7. Finalização
@@ -203,12 +201,24 @@ public class PedidoService {
         for (ItemPedido item : pedido.getItens()) {
             int precoCentavos = item.getPrecoUnitario().multiply(new BigDecimal("100")).intValue();
 
-            produtosApi.add(new io.github.raphaelmun1z.ecommerce.payment.dto.Product(
-                    item.getProduto().getId().toString(),
+            produtosApi.add(new Product(
+                    item.getProduto().getId(),
                     item.getProduto().getTitulo(),
                     item.getProduto().getDescricao() != null ? item.getProduto().getDescricao() : "Sem descrição",
                     item.getQuantidade(),
                     precoCentavos
+            ));
+        }
+
+        BigDecimal valorFrete = pedido.getEntrega().getValorFrete();
+        if (valorFrete != null && valorFrete.compareTo(BigDecimal.ZERO) > 0) {
+            int freteCentavos = valorFrete.multiply(new BigDecimal("100")).intValue();
+            produtosApi.add(new Product(
+                    "FRETE-" + pedido.getId(),
+                    "Taxa de Entrega / Frete",
+                    "Serviço de entrega do pedido",
+                    1,
+                    freteCentavos
             ));
         }
 
@@ -233,8 +243,8 @@ public class PedidoService {
                 "ONE_TIME",
                 List.of(metodoApi),
                 produtosApi,
+                this.urlFalha,
                 this.urlSucesso,
-                this.urlConclusao,
                 customerApi
         );
 
@@ -288,7 +298,6 @@ public class PedidoService {
         pagamento.setStatus(StatusPagamento.APROVADO);
         pagamento.setCodigoTransacaoGateway(transactionId);
         pagamento.setDataConfirmacao(LocalDateTime.now());
-
         pedido.setStatus(StatusPedido.PAGO);
         pedidoRepository.save(pedido);
     }
