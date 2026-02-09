@@ -1,9 +1,9 @@
 spring:
   application:
     name: ecommerce
-    version: v0.1.0-alpha
+    version: v1.0.0-beta
   profiles:
-    active: "test"
+    active: "prod"
   jpa:
     open-in-view: false
 
