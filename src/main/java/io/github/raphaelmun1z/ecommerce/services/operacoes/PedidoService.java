@@ -43,10 +43,10 @@ public class PedidoService {
     private final EstoqueService estoqueService;
     private final AbacatePayService abacatePayService;
 
-    @Value("${app.url.sucesso:http://localhost:4200/pedido/sucesso}")
+    @Value("${PAY_URL_SUCESSO:http://localhost:4200/pedido/sucesso}")
     private String urlSucesso;
 
-    @Value("${app.url.falha:http://localhost:4200/pedido/falhou}")
+    @Value("${PAY_URL_FALHA:http://localhost:4200/pedido/falhou}")
     private String urlFalha;
 
     public PedidoService(PedidoRepository pedidoRepository,
