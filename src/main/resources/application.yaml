@@ -24,8 +24,9 @@ spring-doc:
     use-root-path: true
 
 server:
+  port: ${PORT:8080}
   servlet:
     context-path: /api
 
 cors:
-  originPatterns: ${CORS_ORIGINS:http://localhost:4200}
+  originPatterns: ${CORS_ORIGINS:http://localhost:4200,https://raphaelmun1z.github.io/}
