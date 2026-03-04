@@ -28,5 +28,10 @@ server:
   servlet:
     context-path: /api
 
+cloudinary:
+  cloud_name: ${CLOUDINARY_CLOUD_NAME:dkgktpavo}
+  api_key: ${CLOUDINARY_API_KEY:555172519121269}
+  api_secret: ${CLOUDINARY_API_SECRET:BI03wZoHZeVxKsTslcMvOyoEkwI}
+
 cors:
   originPatterns: ${CORS_ORIGINS:http://localhost:4200,https://raphaelmun1z.github.io/}
