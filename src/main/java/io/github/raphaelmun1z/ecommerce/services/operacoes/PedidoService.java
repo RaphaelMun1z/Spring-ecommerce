@@ -43,10 +43,10 @@ public class PedidoService {
     private final EstoqueService estoqueService;
     private final AbacatePayService abacatePayService;
 
-    @Value("${PAY_URL_SUCESSO:http://localhost:4200/pedido/sucesso}")
+    @Value("${PAY_URL_SUCESSO:http://localhost:4200/Angular-Ecommerce-EShop/checkout/sucesso}")
     private String urlSucesso;
 
-    @Value("${PAY_URL_FALHA:http://localhost:4200/pedido/falhou}")
+    @Value("${PAY_URL_FALHA:http://localhost:4200/Angular-Ecommerce-EShop/checkout/falhou}")
     private String urlFalha;
 
     public PedidoService(PedidoRepository pedidoRepository,

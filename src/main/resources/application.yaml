@@ -3,7 +3,7 @@ spring:
     name: ecommerce
     version: v1.0.0-beta
   profiles:
-    active: "prod"
+    active: "dev"
   jpa:
     open-in-view: false
 
